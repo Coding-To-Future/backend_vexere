@@ -6,7 +6,7 @@ const myRouter = require('./routes/index');
 console.log("node env", process.env.NODE_ENV)
 
 const keys = require('./config/index')
-
+// const host = require('./config/index')
 // const  = require('./config/index')
 mongoose.connect(keys.mongo_uri, {
     useNewUrlParser: true,
@@ -29,7 +29,7 @@ app.use('/api', myRouter); // localhost:5000/api
 app.use('/', express.static('./public')) //ban chat la midd
 
 // const port = 5000;
-
+app.use('/docs', require('./routes/docs'))
 const port = process.env.PORT || keys.port; //heroku cap port or lay local
 app.listen(port, () => {
     console.log(`Server running on port ${port}`)
