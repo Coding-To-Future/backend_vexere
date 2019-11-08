@@ -26,7 +26,7 @@ app.use(express.json())
 app.use('/uploads', express.static('./uploads'))
 app.use('/api', myRouter); // localhost:5000/api
 // router.use('/stations', stationRouter) thay the myRouter trong file index,js
-app.use('/', express.static('/public')) //ban chat la midd
+app.use('/', express.static('./public')) //ban chat la midd
 
 // const port = 5000;
 
