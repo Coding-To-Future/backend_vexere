@@ -19,18 +19,18 @@ const app = express();
 
 app.use(express.json())
 // app.use('/', express.static('/public')) //ban chat la midd
-
-
 // app.use(express.urlencoded({ extended: false }))
 //ben ngoai chi dung use ko dinh nghia cac phuong thuc http method=> co che midder wear
 app.use('/uploads', express.static('./uploads'))
 app.use('/api', myRouter); // localhost:5000/api
 // router.use('/stations', stationRouter) thay the myRouter trong file index,js
 app.use('/', express.static('./public')) //ban chat la midd
-
 // const port = 5000;
 app.use('/docs', require('./routes/docs'))
+
 const port = process.env.PORT || keys.port; //heroku cap port or lay local
+
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`)
 })
