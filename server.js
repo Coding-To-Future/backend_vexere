@@ -30,5 +30,5 @@ app.use('/api', myRouter); // localhost:5000/api
 
 const port = process.env.PORT || keys.port; //heroku cap port or lay local
 app.listen(port, () => {
-    console.log(`Server running on port ${keys.port}`)
+    console.log(`Server running on port ${port}`)
 })
