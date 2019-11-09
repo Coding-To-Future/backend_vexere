@@ -9,7 +9,7 @@ const router = express.Router();
 
 
 router.post('/', validatePostUser, userController.createUser)
-router.get('/', userController.getUsers)
+// router.get('/', userController.getUsers)
 // router.get('/:id', userController.getUserById)
 // router.put('/:id', userController.updateUserById)
 router.delete('/:id', userController.deteteUserById)
