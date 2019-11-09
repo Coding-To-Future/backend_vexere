@@ -7,7 +7,7 @@ const { sendBookingTicketEmail } = require('../../../services/email/sendBookingT
 module.exports.createTicket = (req, res, next) => {
     //totalprice = price *soghe
     const { tripId, seatCodes } = req.body;
-    // const userId = req.user.id //token
+    const userId = req.user.id //token
 
     Trip
         .findById(tripId)
@@ -31,7 +31,7 @@ module.exports.createTicket = (req, res, next) => {
             // return res.status(200).json({ message: "success" })
             const newTicket = new Ticket({ //seatCodes bat buoc phai nhap dung tat ca thi moi chay
                 tripId,
-                userId: "5dc2fa106bfb6f4dd890d971",
+                userId,
                 seats: seatCodes.map(s => ({//seats nhung tu seatSkeyma nen co _id
                     isBooked: true,
                     code: s

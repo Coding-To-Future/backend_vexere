@@ -1,13 +1,11 @@
+//this file chi dung use ko dinh nghia cac phuong thuc http method => co che middleware
 const express = require('express');
 const mongoose = require('mongoose');
 const myRouter = require('./routes/index');
-// require('dotenv').config() //goi file .env
+const keys = require('./config/index')
 
 console.log("node env", process.env.NODE_ENV)
 
-const keys = require('./config/index')
-// const host = require('./config/index')
-// const  = require('./config/index')
 mongoose.connect(keys.mongo_uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -17,20 +15,14 @@ mongoose.connect(keys.mongo_uri, {
 
 const app = express();
 
-app.use(express.json())
-// app.use('/', express.static('/public')) //ban chat la midd
+app.use(express.json()) //phan tich requests den voi json payloads
 // app.use(express.urlencoded({ extended: false }))
-//ben ngoai chi dung use ko dinh nghia cac phuong thuc http method=> co che midder wear
 app.use('/uploads', express.static('./uploads'))
-app.use('/api', myRouter); // localhost:5000/api
-// router.use('/stations', stationRouter) thay the myRouter trong file index,js
-app.use('/', express.static('./public')) //ban chat la midd
-// const port = 5000;
-app.use('/docs', require('./routes/docs'))
+app.use('/api', myRouter);
+app.use('/', express.static('./public')) //serve file trong thu muc duoc chi dinh 
+app.use('/docs', require('./routes/docs')) //goi middleware khac thong qua duong dan
 
 const port = process.env.PORT || keys.port; //heroku cap port or lay local
-
-
 app.listen(port, () => {
     console.log(`Server running on port ${port}`)
 })

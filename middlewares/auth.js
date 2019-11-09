@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken')
 const { promisify } = require('util')
 const veryfyJwt = promisify(jwt.verify)
+const keys = require('../config/index')
 
 module.exports.authenticate = (req, res, next) => {
     const token = req.header("token")
-    veryfyJwt(token, "hello") //xac nhan token nhap vao dung hay sai, neu dung chay .then, sai chay .catch
+    veryfyJwt(token, keys.secret_key) //xac nhan token nhap vao dung hay sai, neu dung chay .then, sai chay .catch
         .then((decoded) => {
             if (decoded) { //decoded neu co ton tai thi thuc hien gan req.user de dung cho authorize, ko thi nhay xuong .catch
                 req.user = decoded;

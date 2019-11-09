@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
 const keys = require('../../../config/index')
-console.log(keys.secret_key)
 // let secret_key;
 
 // // const secret_key_staging = "mongodb+srv://hoainam007:F7kOTIOuK7WoGMKp@cluster0-wtz7b.mongodb.net/vexere?retryWrites=true&w=majority"

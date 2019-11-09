@@ -3,6 +3,7 @@ const keys = require('../../config/index');
 
 module.exports = {
     swagger: '2.0',
+    // host: 'localhost:6789',
     host: keys.host,
     basePath: '/api',
     schemes: ['http', 'https'],
