@@ -5,7 +5,7 @@ module.exports = {
     swagger: '2.0',
     // host: 'localhost:6789',
     host: keys.host,
-    basePath: 'api',
+    basePath: '/api',
     // schemes: ['http', 'https'],
     consumes: ['application/json'],
     produces: ['application/json'],

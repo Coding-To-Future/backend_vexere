@@ -24,7 +24,7 @@ switch (process.env.NODE_ENV) {
         secret_key = process.env.SECRET_KEY_STAGING
         email = process.env.EMAIL_STAGING
         password = process.env.PASSWORD_STAGING
-        host = `https://fs07-vexere-nam.herokuapp.com/`
+        host = `fs07-vexere-nam.herokuapp.com`
         break;
     default: break;
 }
