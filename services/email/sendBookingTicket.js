@@ -8,19 +8,27 @@ const keys = require('../../config/index')
 
 module.exports.sendBookingTicketEmail = (ticket, trip, user) => {
     const transpost = {
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        requireTSL: true,
-        requireSSL: true,
+        // host: "smtp.gmail.com",
+        // port: 587,
+        // secure: false,
+        // requireTSL: true,
+        // requireSSL: true,
+        // auth: {
+        //     user: keys.email,
+        //     pass: keys.password
+        // }
+        host: "smtp.mailtrap.io",
+        port: 2525,
         auth: {
-            user: keys.email,
-            pass: keys.password
+            user: "9b22e6d2c91943",
+            pass: "81d90c1ad6b347"
         }
     }
+
     const transporter = nodemailer.createTransport(transpost)
     const mailOptions = {
-        form: keys.email,
+        // form: keys.email,
+        form: "smtp.mailtrap.io",
         to: user.email,
         subject: "Mail xac nhan mua ve thanh cong",
         // html: "cam on ban da mua ve"
