@@ -6,7 +6,7 @@ module.exports = {
     // host: 'localhost:6789',
     host: keys.host,
     basePath: '/api',
-    // schemes: ['http', 'https'],
+    schemes: ['http', 'https'],
     consumes: ['application/json'],
     produces: ['application/json'],
     paths: {
