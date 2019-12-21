@@ -15,8 +15,15 @@ mongoose.connect(keys.mongo_uri, {
 
 const app = express();
 
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
 app.use(express.json()) //phan tich requests den voi json payloads
 // app.use(express.urlencoded({ extended: false }))
+
 app.use('/uploads', express.static('./uploads'))
 app.use('/api', myRouter);
 app.use('/', express.static('./public')) //serve file trong thu muc duoc chi dinh 

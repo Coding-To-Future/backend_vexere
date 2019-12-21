@@ -1,32 +1,32 @@
 {
-    "name": "vexere",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "start": "node server.js",
-        "start:local": "set NODE_ENV=local& node server.js",
-        "start:staging": "set NODE_ENV=staging& node server.js",
-        "debug": "nodemon server.js",
-        "debug:log": "DEBUG=* nodemon server.js",
-        "debug:log-win": "set DEBUG=* & nodemon server.js"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "bcryptjs": "^2.4.3",
-        "dotenv": "^8.2.0",
-        "express": "^4.17.1",
-        "hogan.js": "^3.0.2",
-        "jsonwebtoken": "^8.5.1",
-        "lodash": "^4.17.15",
-        "mkdirp": "^0.5.1",
-        "mongoose": "^5.7.7",
-        "multer": "^1.4.2",
-        "nodemailer": "^6.3.1",
-        "swagger-jsdoc": "^3.4.0",
-        "swagger-ui-express": "^4.1.2",
-        "validator": "^12.0.0"
-    }
+  "name": "vexere",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "start:local": "set NODE_ENV=local& nodemon server.js",
+    "start:staging": "set NODE_ENV=staging& node server.js",
+    "debug": "nodemon server.js",
+    "debug:log": "DEBUG=* nodemon server.js",
+    "debug:log-win": "set DEBUG=* & nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "hogan.js": "^3.0.2",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
+    "mkdirp": "^0.5.1",
+    "mongoose": "^5.7.7",
+    "multer": "^1.4.2",
+    "nodemailer": "^6.3.1",
+    "swagger-jsdoc": "^3.4.0",
+    "swagger-ui-express": "^4.1.2",
+    "validator": "^12.0.0"
+  }
 }

@@ -18,7 +18,13 @@ module.exports.createTicket = (req, res, next) => {
             if (!trip) return Promise.reject({ status: 404, message: "Trip not found" }) // validation
             //kiem tra voi danh sach ge con trong
             //reduce 
+            let a = trip.fromStation
             const availableSeatCodes = trip.seats.filter(s => !s.isBooked).map(s => s.code)//ghe o dang false
+            // console.log(trip.seats)
+            // console.log(trip.fromStation)
+            // console.log(Trip.populate("fromStation"))
+            // console.log(trip.toStation)
+            // console.log(availableSeatCodes)
             let errorSeatCodes = []
 
             seatCodes.forEach(code => {

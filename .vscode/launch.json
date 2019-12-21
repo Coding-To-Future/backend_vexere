@@ -8,6 +8,10 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
+            // "envFile": "${workspaceFolder}\\.env",
+            "env": {
+                "NODE_ENV": "local"
+            },
             "program": "${workspaceFolder}\\server.js"
         }
     ]
