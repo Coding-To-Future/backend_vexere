@@ -5,21 +5,6 @@ const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
 const keys = require('../../../config/index')
-// let secret_key;
-
-// // const secret_key_staging = "mongodb+srv://hoainam007:F7kOTIOuK7WoGMKp@cluster0-wtz7b.mongodb.net/vexere?retryWrites=true&w=majority"
-// const secret_key_staging = process.env.SECRET_KEY_STAGING
-
-// const secret_key_local = process.env.SECRET_KEY_LOCAL
-// // const secret_key_local = "mongodb://localhost:27017/fs07-vexere"
-
-// if (process.env.NODE_ENV === "local") {
-//     secret_key = secret_key_local
-
-// } else if (process.env.NODE_ENV === "staging") {
-//     secret_key = secret_key_staging
-// }
-// console.log(secret_key)
 
 //thu vien util cho phep viet bcrypt o dang promist mac dinh chi o dang callback
 //phuong thuc promisify ho tro chuyen 1 callback thanh 1 promise
@@ -28,30 +13,11 @@ const keys = require('../../../config/index')
  * @todo register new user
  */
 
-// const genSalt = promisify(bcrypt.genSalt)
-// const hash = promisify(bcrypt.hash)
-//2 ham callback
 module.exports.createUser = (req, res, next) => {
     const { email, password, fullName } = req.body;
     const newUser = new User({ email, password, fullName })
 
-    // bcrypt.genSalt(10, (err, salt) => {
-    //     if (err) return res.json(err)
-
-    //     bcrypt.hash(password, salt, (err, hash) => {
-    //         if (err) return res.json(err)
-    //         newUser.password = hash;
-    //         newUser.save()
-    //             .then(user => res.status(200).json(user))
-    //             .catch(err => res.status(500).json(err))
-    //     })
-    // })
-
-    // User.findOne({ email }) // ES6
-    //     .then(user => {
-    //         if (user) return Promise.reject({ status: 400, message: "Email exists" })
     newUser.save() //truoc khi save sang userschema
-        // })
         .then(user => res.status(200).json(user))
         .catch(err => {
             if (err.status) return res.status(err.status).json({ message: err.message })
@@ -116,7 +82,6 @@ module.exports.login = (req, res, next) => {
     User.findOne({ email })
         .then(user => {
             if (!user) return Promise.reject({ status: 404, message: "User not found" })
-            // return comparePassword(password, user.password)
             return Promise.all([comparePassword(password, user.password), user])
         })
         .then(res => {
@@ -126,11 +91,11 @@ module.exports.login = (req, res, next) => {
             if (!isMatch) return Promise.reject({ status: 404, message: "Password is incorrect" })
 
             const payload = {
+                id: user._id,
                 email: user.email,
                 userType: user.userType
             }
             return jwtSign(
-                // console.log(hello),
                 payload,
                 keys.secret_key,
                 { expiresIn: 3600 }
@@ -150,7 +115,6 @@ module.exports.login = (req, res, next) => {
 }
 
 module.exports.uploadAvatar = (req, res, next) => {
-    // console.log(req.file);
     const { email } = req.user;
     User.findOne({ email: email })
         .then(user => {

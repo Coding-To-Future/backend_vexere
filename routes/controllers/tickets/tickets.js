@@ -2,29 +2,20 @@ const { Ticket } = require('../../../models/Ticket')
 const { User } = require('../../../models/User')
 const { Trip } = require('../../../models/Trip')
 const { sendBookingTicketEmail } = require('../../../services/email/sendBookingTicket')
-//create ticket = book ticket
 
 module.exports.createTicket = (req, res, next) => {
-    //totalprice = price *soghe
     const { tripId, seatCodes } = req.body;
     const userId = req.user.id //token
 
     Trip
         .findById(tripId)
-        .populate("fromStation") //lay gia tri fromStation, neu ko se la id
-        // console.log(populate("fromStation"))
+        .populate("fromStation")
         .populate("toStation")
         .then(trip => {
             if (!trip) return Promise.reject({ status: 404, message: "Trip not found" }) // validation
             //kiem tra voi danh sach ge con trong
             //reduce 
-            let a = trip.fromStation
             const availableSeatCodes = trip.seats.filter(s => !s.isBooked).map(s => s.code)//ghe o dang false
-            // console.log(trip.seats)
-            // console.log(trip.fromStation)
-            // console.log(Trip.populate("fromStation"))
-            // console.log(trip.toStation)
-            // console.log(availableSeatCodes)
             let errorSeatCodes = []
 
             seatCodes.forEach(code => {
@@ -34,7 +25,7 @@ module.exports.createTicket = (req, res, next) => {
             if (errorSeatCodes.length > 0) return Promise.reject({
                 status: 400, message: "Seats are not available", notAvailableSeats: errorSeatCodes
             }) //neu errorSeatCodes co ma ghe thi thong bao ra cho nguoi dung
-            // return res.status(200).json({ message: "success" })
+
             const newTicket = new Ticket({ //seatCodes bat buoc phai nhap dung tat ca thi moi chay
                 tripId,
                 userId,

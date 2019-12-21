@@ -48,6 +48,6 @@ module.exports.sendBookingTicketEmail = (ticket, trip, user) => {
 
     transporter.sendMail(mailOptions, err => {
         if (err) return console.log(err.message)
-        console.log("success")
+        console.log("Email was successfully sent!")
     })
 }
