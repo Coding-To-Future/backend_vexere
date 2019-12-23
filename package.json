@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "start:local": "set NODE_ENV=local& nodemon server.js",
-    "start:staging": "set NODE_ENV=staging& node server.js",
+    "start:staging": "set NODE_ENV=staging& nodemon server.js",
     "debug": "nodemon server.js",
     "debug:log": "DEBUG=* nodemon server.js",
     "debug:log-win": "set DEBUG=* & nodemon server.js"
