@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const myRouter = require('./routes/index');
 const keys = require('./config/index')
+const cors = require('cors')
 
 console.log("node env", process.env.NODE_ENV)
 
@@ -15,11 +16,7 @@ mongoose.connect(keys.mongo_uri, {
 
 const app = express();
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
+app.use(cors())
 
 app.use(express.json()) //phan tich requests den voi json payloads
 // app.use(express.urlencoded({ extended: false }))
