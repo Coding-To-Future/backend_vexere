@@ -1,6 +1,5 @@
 const express = require("express");
 const userController = require("./users");
-// const multer = require('multer')
 const { authenticate, authorize } = require("../../../middlewares/auth");
 const { uploadImage } = require("../../../middlewares/uploadImage");
 const {
@@ -10,21 +9,15 @@ const router = express.Router();
 
 router.post("/", validatePostUser, userController.createUser);
 router.get("/", userController.getUsers);
-// router.get('/:id', userController.getUserById)
-// router.put('/:id', userController.updateUserById)
+router.get("/:id", userController.getUserById);
+router.put("/:id", userController.updateUserById);
+router.put(
+  "/change-password/:id",
+  authenticate,
+  userController.updatePasswordUser
+);
 router.delete("/:id", userController.deteteUserById);
 router.post("/login", userController.login);
-
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, './uploads')
-//     },
-//     filename: function (req, file, cb) {
-//         cb(null, Date.now() + "_" + file.originalname)
-//     }
-// })
-
-// const upload = multer({ storage })
 
 router.get(
   "/test-private",

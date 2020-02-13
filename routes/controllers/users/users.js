@@ -3,6 +3,10 @@ const { User } = require("../../../models/User");
 const bcrypt = require("bcryptjs");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
+const moment = require("moment");
+
+const comparePassword = promisify(bcrypt.compare);
+const jwtSign = promisify(jwt.sign);
 
 require("dotenv").config();
 
@@ -79,11 +83,60 @@ module.exports.deteteUserById = (req, res, next) => {
     });
 };
 
+module.exports.updateUserById = (req, res, next) => {
+  const { id } = req.params;
+  const { email, fullName, phoneNumber, dayOfBirth } = req.body;
+  User.findById(id)
+    .then(user => {
+      if (!user) return Promise.reject({ status: 404, message: "Not Found" });
+      // console.log(user);
+      user.email = email;
+      user.fullName = fullName;
+      user.phoneNumber = phoneNumber;
+      user.dayOfBirth = moment(dayOfBirth).format("DD/MM/YYYY");
+
+      return user.save();
+    })
+    .then(user => res.status(200).json(user))
+    .catch(err => {
+      if (err.status) return status(err.status).json({ message: err.message });
+      return res.status(500).json(err);
+    });
+};
+
+module.exports.updatePasswordUser = (req, res, next) => {
+  const { id } = req.params;
+  const { password, newPassword } = req.body;
+  User.findById(id)
+    .then(user => {
+      if (!user)
+        return Promise.reject({ status: 404, message: "User not found" });
+      return Promise.all([comparePassword(password, user.password), user]);
+    })
+    .then(res => {
+      const isMatch = res[0];
+      const user = res[1];
+
+      if (!isMatch)
+        return Promise.reject({
+          status: 404,
+          message: "Password is incorrect"
+        });
+      user.password = newPassword;
+      return user.save();
+    })
+    .then(user => res.status(200).json(user))
+
+    .catch(err => {
+      if (err.status)
+        return res.status(err.status).json({ message: err.message });
+      return res.status(500).json(err);
+    });
+};
+
 /**
  * @todo: login with credentials: -- no la nhung thong tin khi dang nhap nhu email va pass
  */
-const comparePassword = promisify(bcrypt.compare);
-const jwtSign = promisify(jwt.sign);
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
@@ -108,32 +161,19 @@ module.exports.login = (req, res, next) => {
       const payload = {
         id: user._id,
         email: user.email,
-        userType: user.userType
+        userType: user.userType,
+        fullName: user.fullName,
+        avatar: user.avatar
       };
       return jwtSign(payload, keys.secret_key, { expiresIn: 3600 });
     })
 
     .then(token => {
-      // const newJwtToken = new JwtToken({
-      //   // userId: user._id,
-      //   token: token
-      // });
-
-      // newJwtToken.save();
       return res.status(200).json({
-        message: "login successfully",
+        message: "Login successfully",
         token
       });
     })
-
-    // .then(token => {
-    //   const newJwtToken = new JwtToken({
-    //     // userId: user._id,
-    //     token: token
-    //   });
-    //   // console.log("TCL: module.exports.login -> token", token);
-    //   return newJwtToken.save();
-    // })
 
     .catch(err => {
       if (err.status)

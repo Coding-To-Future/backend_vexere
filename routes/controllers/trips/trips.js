@@ -1,3 +1,7 @@
+const url = require("url");
+const _ = require("lodash");
+const moment = require("moment");
+
 const { Trip } = require("../../../models/Trip");
 const { Seat } = require("../../../models/Seat");
 const seatCodes = [
@@ -26,6 +30,7 @@ const seatCodes = [
   "B11",
   "B12"
 ];
+
 module.exports.createTrip = (req, res, next) => {
   const { fromStation, toStation, startTime, price } = req.body;
   const newTrip = new Trip({ fromStation, toStation, startTime, price });
@@ -43,7 +48,7 @@ module.exports.createTrip = (req, res, next) => {
 module.exports.getTrips = (req, res, next) => {
   Trip.find()
     .then(trip => {
-      // console.log(trip[0].fromStation.name)
+      // console.log(trip);
       res.status(200).json(trip);
     })
     .catch(err => res.status(500).json(err));
@@ -99,5 +104,28 @@ module.exports.deteteTripById = (req, res, next) => {
           message: err.message
         });
       return res.status(500).json(err);
+    });
+};
+
+module.exports.searchTrips = (req, res, next) => {
+  // let queryString = url.parse(
+  //     (0, req.url.lastIndexOf("/")),
+  //   true
+  // ).query;
+
+  const { fromStation, toStation, startTime } = req.body;
+  Trip.find({
+    fromStation: fromStation,
+    toStation: toStation,
+    startTime: { $gte: startTime }
+  })
+    .then(trip => {
+      if (_.isEmpty(trip))
+        return Promise.reject({ status: 404, message: "Not found!" });
+      res.status(200).json(trip);
+    })
+    .catch(err => {
+      if (!err.status) return res.json(err);
+      res.status(err.status).json(err);
     });
 };
