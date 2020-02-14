@@ -120,7 +120,7 @@ module.exports.updatePasswordUser = (req, res, next) => {
       if (!isMatch)
         return Promise.reject({
           status: 404,
-          message: "Password is incorrect"
+          message: "Password is incorrect!"
         });
       user.password = newPassword;
       return user.save();
@@ -129,7 +129,7 @@ module.exports.updatePasswordUser = (req, res, next) => {
 
     .catch(err => {
       if (err.status)
-        return res.status(err.status).json({ message: err.message });
+        return res.status(err.status).json({ password: err.message });
       return res.status(500).json(err);
     });
 };
