@@ -10,6 +10,13 @@ This API allowed users to search for trips, log in to select seats and book tick
 
 ## How to run
 
-1. Download project at: https://github.com/ironhight/backend_vexere
-2. Run in terminal to start server: yarn start:local
+1. Clone: `git clone https://github.com/ironhight/backend_vexere.git`
+2. Run in terminal to start server: `yarn start:local`
 3. Go to link : http://localhost:6789/docs/ to access Swagger interface
+
+## Deploy app on Heroku
+https://fs07-vexere-nam.herokuapp.com/
+
+## Associate project 
+- Front-end VeXeRe (admin): https://github.com/ironhight/vexere_admin
+- Front-end VeXeRe (client): https://github.com/ironhight/FE_vexere_client 
