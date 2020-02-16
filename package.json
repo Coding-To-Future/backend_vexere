@@ -15,7 +15,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.619.0",
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -26,6 +28,8 @@
     "moment": "^2.24.0",
     "mongoose": "^5.8.11",
     "multer": "^1.4.2",
+    "multer-s3": "^2.9.0",
+    "multer-storage-cloudinary": "^2.2.1",
     "nodemailer": "^6.4.2",
     "swagger-jsdoc": "^3.5.0",
     "swagger-ui-express": "^4.1.3",
