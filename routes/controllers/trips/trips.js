@@ -45,10 +45,19 @@ module.exports.createTrip = (req, res, next) => {
     .catch(err => res.status(500).json(err));
 };
 
-module.exports.getTrips = (req, res, next) => {
+module.exports.getTripsLimit = (req, res, next) => {
+  const { limit } = req.params;
+  Trip.find()
+    .limit(parseInt(limit))
+    .then(trip => {
+      res.status(200).json(trip);
+    })
+    .catch(err => res.status(500).json(err));
+};
+
+module.exports.getTripsAll = (req, res, next) => {
   Trip.find()
     .then(trip => {
-      // console.log(trip);
       res.status(200).json(trip);
     })
     .catch(err => res.status(500).json(err));
@@ -87,6 +96,7 @@ module.exports.updateTripById = (req, res, next) => {
       return res.status(500).json(err);
     });
 };
+
 module.exports.deteteTripById = (req, res, next) => {
   const { id } = req.params;
   Trip.deleteOne({ _id: id })
@@ -129,3 +139,5 @@ module.exports.searchTrips = (req, res, next) => {
       res.status(err.status).json(err);
     });
 };
+
+// module.exports.getTri
