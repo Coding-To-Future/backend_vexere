@@ -3,7 +3,14 @@ const _ = require("lodash");
 const { User } = require("../../models/User");
 
 module.exports.validatePostUser = async (req, res, next) => {
-  const { email, password, password2, fullName, phoneNumber } = req.body;
+  const {
+    email,
+    password,
+    password2,
+    fullName,
+    phoneNumber,
+    dayOfBirth
+  } = req.body;
 
   let errors = {};
   //email
@@ -34,12 +41,17 @@ module.exports.validatePostUser = async (req, res, next) => {
   if (!phoneNumber) {
     errors.phoneNumber = "Phone number is required";
   } else {
-    const phoneNumber = await User.findOne({ phoneNumber });
-    if (phoneNumber) errors.phoneNumber = "This phone number already exists";
+    const userPhone = await User.findOne({ phoneNumber });
+    if (userPhone) errors.phoneNumber = "This phone number already exists";
   }
 
   //fullName
   if (!fullName) errors.fullName = "Full name is required";
+
+  //dayOfBirth
+  if (!dayOfBirth) {
+    errors.dayOfBirth = "Day of Birth is required";
+  }
 
   if (_.isEmpty(errors)) return next();
   return res.status(400).json(errors);

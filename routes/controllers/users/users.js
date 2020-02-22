@@ -20,8 +20,14 @@ const keys = require("../../../config/index");
  */
 
 module.exports.createUser = (req, res, next) => {
-  const { email, password, fullName } = req.body;
-  const newUser = new User({ email, password, fullName });
+  const { email, password, fullName, phoneNumber, dayOfBirth } = req.body;
+  const newUser = new User({
+    email,
+    password,
+    fullName,
+    phoneNumber,
+    dayOfBirth
+  });
 
   newUser
     .save() //truoc khi save sang userschema
