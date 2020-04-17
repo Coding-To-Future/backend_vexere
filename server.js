@@ -3,9 +3,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const myRouter = require("./routes/index");
 const keys = require("./config/index");
+// import cors from "cors";
 const cors = require("cors");
+const fs = require("fs");
+const chalk = require("chalk");
 
-console.log("node env", process.env.NODE_ENV);
+console.log(chalk.bold.green.inverse("node env", process.env.NODE_ENV));
+fs.appendFileSync("node.txt", "\ntoi ten la");
 
 mongoose
   .connect(keys.mongo_uri, {

@@ -1,14 +1,11 @@
-const mongoose = require("mongoose");
-const JwtTokenSchema = new mongoose.Schema({
+const mongoose = require('mongoose');
+const jwtTokenSchema = new mongoose.Schema({
   // userId: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: "User"
   // },
-  token: { type: String, required: true }
+  token: { type: String, required: true, trim: true },
 });
-const JwtToken = mongoose.model("JwtToken", JwtTokenSchema, "JwtToken");
+const JwtToken = mongoose.model('JwtToken', jwtTokenSchema, 'JwtToken');
 
-module.exports = {
-  JwtToken,
-  JwtTokenSchema
-};
+module.exports = JwtToken;

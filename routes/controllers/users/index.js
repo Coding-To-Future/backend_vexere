@@ -1,37 +1,45 @@
-const express = require("express");
-const userController = require("./users");
-const { authenticate, authorize } = require("../../../middlewares/auth");
-const { uploadImage } = require("../../../middlewares/uploadImage");
+const express = require('express');
+const userController = require('./users');
+const { authenticate, authorize } = require('../../../middlewares/auth');
+const { uploadImage } = require('../../../middlewares/uploadImage');
 const {
-  validatePostUser
-} = require("../../../validations/users/validate.post.user");
+  validatePostUser,
+} = require('../../../validations/users/validate.post.user');
 const router = express.Router();
 
-router.post("/", validatePostUser, userController.createUser);
-router.get("/", userController.getUsers);
-router.get("/:id", userController.getUserById);
-router.put("/:id", userController.updateUserById);
+router.post('/', validatePostUser, userController.createUser);
+router.get('/', userController.getUsers);
+router.get('/:id', userController.getUserById);
+router.put('/:id', userController.updateUserById);
 router.put(
-  "/change-password/:id",
+  '/change-password/:id',
   authenticate,
   userController.updatePasswordUser
 );
-router.delete("/:id", userController.deteteUserById);
-router.post("/login", userController.login);
+router.delete('/:id', userController.deteteUserById);
+router.post('/login', userController.login);
 
 router.get(
-  "/test-private",
+  '/test-private',
   authenticate,
-  authorize(["admin"]),
+  authorize(['admin']),
   (req, res, next) => {
-    res.status(200).json({ message: "Ban da thay dieu ko nen thay" });
+    res.status(200).json({ message: 'Ban da thay dieu ko nen thay' });
   }
 );
 router.post(
-  "/upload-avatar",
+  '/upload-avatar',
   authenticate,
-  uploadImage("avatar"),
-  userController.uploadAvatar
+  uploadImage,
+  // userController.uploadAvatar,
+  (req, res, next) => {
+    console.log(req.files);
+    // res.json('done');
+    // res.status(400).send({ message: err.message });
+  }
 );
+
+router.delete('/me/avatar', authenticate, userController.deleteAvatar);
+router.get('/me/:id/avatar', userController.getAvatarById);
 
 module.exports = router;

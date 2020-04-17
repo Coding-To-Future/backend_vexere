@@ -1,16 +1,17 @@
-const { User } = require("../../../models/User");
+const User = require('../../../models/User');
 // const { JwtToken } = require("../../../models/JwtToken");
-const bcrypt = require("bcryptjs");
-const { promisify } = require("util");
-const jwt = require("jsonwebtoken");
-const moment = require("moment");
+const bcrypt = require('bcryptjs');
+const { promisify } = require('util');
+const jwt = require('jsonwebtoken');
+const moment = require('moment');
+const sharp = require('sharp');
 
 const comparePassword = promisify(bcrypt.compare);
 const jwtSign = promisify(jwt.sign);
 
-require("dotenv").config();
+require('dotenv').config();
 
-const keys = require("../../../config/index");
+const keys = require('../../../config/index');
 
 //thu vien util cho phep viet bcrypt o dang promist mac dinh chi o dang callback
 //phuong thuc promisify ho tro chuyen 1 callback thanh 1 promise
@@ -26,13 +27,13 @@ module.exports.createUser = (req, res, next) => {
     password,
     fullName,
     phoneNumber,
-    dayOfBirth
+    dayOfBirth,
   });
 
   newUser
     .save() //truoc khi save sang userschema
-    .then(user => res.status(200).json(user))
-    .catch(err => {
+    .then((user) => res.status(200).json(user))
+    .catch((err) => {
       if (err.status)
         return res.status(err.status).json({ message: err.message });
       return res.status(500).json(err);
@@ -41,25 +42,25 @@ module.exports.createUser = (req, res, next) => {
 
 module.exports.getUsers = (req, res, next) => {
   User.find()
-    .then(user => res.status(200).json(user))
-    .catch(err => res.status(500).json(err));
+    .then((user) => res.status(200).json(user))
+    .catch((err) => res.status(500).json(err));
 };
 
 module.exports.getUserById = (req, res, next) => {
   const { id } = req.params;
   User.findById(id)
-    .then(user => {
+    .then((user) => {
       if (!user)
         return Promise.reject({
           status: 400,
-          message: "User not found"
+          message: 'User not found',
         });
       res.status(200).json(user);
     })
-    .catch(err => {
+    .catch((err) => {
       if (err.status)
         return res.status(err.status).json({
-          message: err.message
+          message: err.message,
         });
       return res.status(500).json(err);
     });
@@ -68,21 +69,21 @@ module.exports.getUserById = (req, res, next) => {
 module.exports.deteteUserById = (req, res, next) => {
   const { id } = req.params;
   User.deleteOne({ _id: id })
-    .then(result => {
+    .then((result) => {
       if (result.n === 0)
         return Promise.reject({
           //result.n trả về có bao nhiêu đối tượng được tìm thấy
           status: 404,
-          message: "Not found"
+          message: 'Not found',
         });
       res.status(200).json({
-        message: "Delete successfully"
+        message: 'Delete successfully',
       });
     })
-    .catch(err => {
+    .catch((err) => {
       if (err.status)
         return res.status(err.status).json({
-          message: err.message
+          message: err.message,
         });
 
       return res.status(500).json(err);
@@ -93,18 +94,18 @@ module.exports.updateUserById = (req, res, next) => {
   const { id } = req.params;
   const { email, fullName, phoneNumber, dayOfBirth } = req.body;
   User.findById(id)
-    .then(user => {
-      if (!user) return Promise.reject({ status: 404, message: "Not Found" });
+    .then((user) => {
+      if (!user) return Promise.reject({ status: 404, message: 'Not Found' });
       // console.log(user);
       user.email = email;
       user.fullName = fullName;
       user.phoneNumber = phoneNumber;
-      user.dayOfBirth = moment(dayOfBirth).format("DD/MM/YYYY");
+      user.dayOfBirth = moment(dayOfBirth).format('DD/MM/YYYY');
 
       return user.save();
     })
-    .then(user => res.status(200).json(user))
-    .catch(err => {
+    .then((user) => res.status(200).json(user))
+    .catch((err) => {
       if (err.status) return status(err.status).json({ message: err.message });
       return res.status(500).json(err);
     });
@@ -114,26 +115,26 @@ module.exports.updatePasswordUser = (req, res, next) => {
   const { id } = req.params;
   const { password, newPassword } = req.body;
   User.findById(id)
-    .then(user => {
+    .then((user) => {
       if (!user)
-        return Promise.reject({ status: 404, message: "User not found" });
+        return Promise.reject({ status: 404, message: 'User not found' });
       return Promise.all([comparePassword(password, user.password), user]);
     })
-    .then(res => {
+    .then((res) => {
       const isMatch = res[0];
       const user = res[1];
 
       if (!isMatch)
         return Promise.reject({
           status: 404,
-          message: "Password is incorrect!"
+          message: 'Password is incorrect!',
         });
       user.password = newPassword;
       return user.save();
     })
-    .then(user => res.status(200).json(user))
+    .then((user) => res.status(200).json(user))
 
-    .catch(err => {
+    .catch((err) => {
       if (err.status)
         return res.status(err.status).json({ password: err.message });
       return res.status(500).json(err);
@@ -148,20 +149,20 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email })
-    .then(user => {
+    .then((user) => {
       if (!user)
-        return Promise.reject({ status: 404, message: "User not found" });
+        return Promise.reject({ status: 404, message: 'User not found' });
 
       return Promise.all([comparePassword(password, user.password), user]);
     })
-    .then(res => {
+    .then((res) => {
       const isMatch = res[0];
       const user = res[1];
 
       if (!isMatch)
         return Promise.reject({
           status: 404,
-          message: "Password is incorrect"
+          message: 'Password is incorrect',
         });
 
       const payload = {
@@ -169,32 +170,72 @@ module.exports.login = (req, res, next) => {
         email: user.email,
         userType: user.userType,
         fullName: user.fullName,
-        avatar: user.avatar
       };
       return jwtSign(payload, keys.secret_key, { expiresIn: 3600 });
     })
 
-    .then(token => {
+    .then((token) => {
       return res.status(200).json({
-        message: "Login successfully",
-        token
+        message: 'Login successfully',
+        token,
       });
     })
 
-    .catch(err => {
+    .catch((err) => {
       if (err.status)
         return res.status(err.status).json({ message: err.message });
       return res.status(500).json(err);
     });
 };
-
-module.exports.uploadAvatar = (req, res, next) => {
-  const { email } = req.user;
+/**
+ * Avatar
+ */
+module.exports.uploadAvatar = async (req, res, next) => {
+  const { email, avatar } = req.user;
+  const buffer = await sharp(req.file.buffer)
+    .resize({ width: 250, height: 250 })
+    .png()
+    .toBuffer();
   User.findOne({ email: email })
-    .then(user => {
-      user.avatar = req.file.path;
+    .then((user) => {
+      user.avatar = buffer;
+
       return user.save();
     })
-    .then(user => res.status(200).json(user))
-    .catch(err => res.json(err));
+    .then((user) => res.status(200).json(user))
+    .catch((err) => res.json(err));
+};
+
+module.exports.deleteAvatar = (req, res, next) => {
+  const { email } = req.user;
+  User.findOne({ email: email })
+    .then((user) => {
+      user.avatar = undefined;
+      return user.save();
+    })
+    .then((user) =>
+      res.status(200).json({ message: 'Delete avatar successfully!' })
+    )
+    .catch((err) => res.json(err));
+};
+
+module.exports.getAvatarById = (req, res, next) => {
+  const { id } = req.params;
+  User.findById(id)
+    .then((user) => {
+      if (!user || !user.avatar)
+        return Promise.reject({
+          status: 404,
+          message: "User not found or User don't have avatar",
+        });
+      res.set('Content-Type', 'image/jpg');
+      return res.send(user.avatar);
+    })
+    .catch((err) => {
+      if (err.status)
+        return res.status(err.status).json({
+          message: err.message,
+        });
+      return res.status(500).json(err);
+    });
 };

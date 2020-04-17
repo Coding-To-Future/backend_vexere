@@ -1,32 +1,34 @@
 const mongoose = require('mongoose');
-const {
-    SeatSchema
-} = require('./Seat')
+const { seatSchema } = require('./Seat');
 
-const TripSchema = new mongoose.Schema({
-    fromStation: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Station'
+const tripSchema = new mongoose.Schema({
+  fromStation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Station',
+  },
+  toStation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Station',
+  },
+  startTime: {
+    type: Date,
+    required: true,
+    trim: true,
+  },
+  seats: [seatSchema],
+  price: {
+    type: Number,
+    required: true,
+    trim: true,
+    default: 0,
+    validate(value) {
+      if (value < 0) {
+        throw new Error('Price must be a postive number');
+      }
     },
-    toStation: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Station'
-    },
-    startTime: {
-        type: Date,
-        required: true
-    },
-    seats: [SeatSchema],
-    price: {
-        type: Number,
-        required: true
-    }
-    //false: con trong nguoc lai thi
+  },
+  //false: con trong nguoc lai thi
+});
+const Trip = mongoose.model('Trip', tripSchema, 'Trip');
 
-})
-const Trip = mongoose.model('Trip', TripSchema, 'Trip')
-
-module.exports = {
-    Trip,
-    TripSchema
-}
+module.exports = Trip;
