@@ -104,6 +104,28 @@ module.exports.login = async (req, res, next) => {
     res.status(400).json(e.message);
   }
 };
+
+module.exports.logout = async (req, res, next) => {
+  try {
+    req.user.tokens = req.user.tokens.filter(
+      (token) => token.token !== req.token
+    );
+    await req.user.save();
+    res.send({ message: 'Logout successfully!' });
+  } catch (e) {
+    res.status(500).send();
+  }
+};
+
+module.exports.logoutAll = async (req, res, next) => {
+  try {
+    req.user.tokens = [];
+    await req.user.save();
+    res.status(200).send({ message: 'Logout all device successfully!' });
+  } catch (e) {
+    res.status(500).send();
+  }
+};
 /**
  * Avatar
  */

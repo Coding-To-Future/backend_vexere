@@ -18,7 +18,8 @@ router.patch(
 );
 router.delete('/:id', authenticate, userController.deteteUserById);
 router.post('/login', userController.login);
-
+router.post('/logout', authenticate, userController.logout);
+router.post('/logout-all', authenticate, userController.logoutAll);
 router.get(
   '/test-private',
   authenticate,
