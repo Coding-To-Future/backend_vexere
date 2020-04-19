@@ -8,15 +8,15 @@ const {
 const router = express.Router();
 
 router.post('/', userController.createUser);
-router.get('/', userController.getUsers);
-router.get('/:id', userController.getUserById);
-router.patch('/:id', userController.updateUserById);
+router.get('/', authenticate, userController.getUsers);
+router.get('/me', authenticate, userController.getUserById);
+router.patch('/:id', authenticate, userController.updateUserById);
 router.patch(
   '/change-password/:id',
   authenticate,
   userController.updatePasswordUser
 );
-router.delete('/:id', userController.deteteUserById);
+router.delete('/:id', authenticate, userController.deteteUserById);
 router.post('/login', userController.login);
 
 router.get(

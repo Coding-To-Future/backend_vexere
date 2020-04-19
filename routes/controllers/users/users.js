@@ -25,7 +25,7 @@ module.exports.createUser = async (req, res, next) => {
   try {
     await user.save();
     const token = await user.generateAuthToken();
-    res.statuc(201).send({ user, token });
+    res.status(201).send({ user, token });
   } catch (e) {
     res.status(400).json(e);
   }
@@ -38,16 +38,7 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getUserById = async (req, res, next) => {
-  const { id } = req.params;
-  try {
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).send({ error: 'User not found!' });
-    }
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(500).jdon(err);
-  }
+  res.send(req.user);
 };
 
 module.exports.deteteUserById = async (req, res, next) => {
