@@ -1,17 +1,17 @@
 const User = require('../../../models/User');
 // const { JwtToken } = require("../../../models/JwtToken");
 const bcrypt = require('bcryptjs');
-const { promisify } = require('util');
-const jwt = require('jsonwebtoken');
-const moment = require('moment');
+// const { promisify } = require('util');
+// const jwt = require('jsonwebtoken');
+// const moment = require('moment');
 const sharp = require('sharp');
 
-const comparePassword = promisify(bcrypt.compare);
-const jwtSign = promisify(jwt.sign);
+// const comparePassword = promisify(bcrypt.compare);
+// const jwtSign = promisify(jwt.sign);
 
 require('dotenv').config();
 
-const keys = require('../../../config/index');
+// const keys = require('../../../config/index');
 
 //thu vien util cho phep viet bcrypt o dang promist mac dinh chi o dang callback
 //phuong thuc promisify ho tro chuyen 1 callback thanh 1 promise
@@ -20,24 +20,15 @@ const keys = require('../../../config/index');
  * @todo register new user
  */
 
-module.exports.createUser = (req, res, next) => {
-  const { email, password, fullName, phoneNumber, dayOfBirth } = req.body;
-  const newUser = new User({
-    email,
-    password,
-    fullName,
-    phoneNumber,
-    dayOfBirth,
-  });
-
-  newUser
-    .save() //truoc khi save sang userschema
-    .then((user) => res.status(200).json(user))
-    .catch((err) => {
-      if (err.status)
-        return res.status(err.status).json({ message: err.message });
-      return res.status(500).json(err);
-    });
+module.exports.createUser = async (req, res, next) => {
+  const user = new User(req.body);
+  try {
+    await user.save();
+    const token = await user.generateAuthToken();
+    res.statuc(201).send({ user, token });
+  } catch (e) {
+    res.status(400).json(e);
+  }
 };
 
 module.exports.getUsers = (req, res, next) => {
@@ -46,146 +37,81 @@ module.exports.getUsers = (req, res, next) => {
     .catch((err) => res.status(500).json(err));
 };
 
-module.exports.getUserById = (req, res, next) => {
+module.exports.getUserById = async (req, res, next) => {
   const { id } = req.params;
-  User.findById(id)
-    .then((user) => {
-      if (!user)
-        return Promise.reject({
-          status: 400,
-          message: 'User not found',
-        });
-      res.status(200).json(user);
-    })
-    .catch((err) => {
-      if (err.status)
-        return res.status(err.status).json({
-          message: err.message,
-        });
-      return res.status(500).json(err);
-    });
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).send({ error: 'User not found!' });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).jdon(err);
+  }
 };
 
-module.exports.deteteUserById = (req, res, next) => {
-  const { id } = req.params;
-  User.deleteOne({ _id: id })
-    .then((result) => {
-      if (result.n === 0)
-        return Promise.reject({
-          //result.n trả về có bao nhiêu đối tượng được tìm thấy
-          status: 404,
-          message: 'Not found',
-        });
-      res.status(200).json({
-        message: 'Delete successfully',
-      });
-    })
-    .catch((err) => {
-      if (err.status)
-        return res.status(err.status).json({
-          message: err.message,
-        });
-
-      return res.status(500).json(err);
-    });
+module.exports.deteteUserById = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).send({ error: 'User not found!' });
+    res.status(200).send({ message: 'Delete successfully!' });
+  } catch (e) {
+    res.status(500).send();
+  }
 };
 
-module.exports.updateUserById = (req, res, next) => {
-  const { id } = req.params;
-  const { email, fullName, phoneNumber, dayOfBirth } = req.body;
-  User.findById(id)
-    .then((user) => {
-      if (!user) return Promise.reject({ status: 404, message: 'Not Found' });
-      // console.log(user);
-      user.email = email;
-      user.fullName = fullName;
-      user.phoneNumber = phoneNumber;
-      user.dayOfBirth = moment(dayOfBirth).format('DD/MM/YYYY');
+module.exports.updateUserById = async (req, res, next) => {
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ['fullName', 'email', 'phoneNumber', 'dayOfBirth'];
+  const isValidOperation = updates.every((update) =>
+    allowedUpdates.includes(update)
+  );
 
-      return user.save();
-    })
-    .then((user) => res.status(200).json(user))
-    .catch((err) => {
-      if (err.status) return status(err.status).json({ message: err.message });
-      return res.status(500).json(err);
-    });
+  if (!isValidOperation)
+    return res.status(400).send({ error: 'Invalid updates!' });
+
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).send({ error: 'User not found!' });
+
+    updates.forEach((update) => (user[update] = req.body[update]));
+
+    await user.save();
+    res.send(user);
+  } catch (e) {
+    res.status(400).send(e);
+  }
 };
 
-module.exports.updatePasswordUser = (req, res, next) => {
+module.exports.updatePasswordUser = async (req, res, next) => {
   const { id } = req.params;
   const { password, newPassword } = req.body;
-  User.findById(id)
-    .then((user) => {
-      if (!user)
-        return Promise.reject({ status: 404, message: 'User not found' });
-      return Promise.all([comparePassword(password, user.password), user]);
-    })
-    .then((res) => {
-      const isMatch = res[0];
-      const user = res[1];
 
-      if (!isMatch)
-        return Promise.reject({
-          status: 404,
-          message: 'Password is incorrect!',
-        });
-      user.password = newPassword;
-      return user.save();
-    })
-    .then((user) => res.status(200).json(user))
-
-    .catch((err) => {
-      if (err.status)
-        return res.status(err.status).json({ password: err.message });
-      return res.status(500).json(err);
-    });
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(404).send({ error: 'User not found!' });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch)
+      return res.status(400).send({ error: 'Password is incorrect!' });
+    user.password = newPassword;
+    await user.save();
+    res.status(200).send({ message: 'Update password successfully!' });
+  } catch (e) {
+    res.status(500).send();
+  }
 };
 
-/**
- * @todo: login with credentials: -- no la nhung thong tin khi dang nhap nhu email va pass
- */
-
-module.exports.login = (req, res, next) => {
-  const { email, password } = req.body;
-
-  User.findOne({ email })
-    .then((user) => {
-      if (!user)
-        return Promise.reject({ status: 404, message: 'User not found' });
-
-      return Promise.all([comparePassword(password, user.password), user]);
-    })
-    .then((res) => {
-      const isMatch = res[0];
-      const user = res[1];
-
-      if (!isMatch)
-        return Promise.reject({
-          status: 404,
-          message: 'Password is incorrect',
-        });
-
-      const payload = {
-        id: user._id,
-        email: user.email,
-        userType: user.userType,
-        fullName: user.fullName,
-      };
-      return jwtSign(payload, keys.secret_key, { expiresIn: 3600 });
-    })
-
-    .then((token) => {
-      return res.status(200).json({
-        message: 'Login successfully',
-        token,
-      });
-    })
-
-    .catch((err) => {
-      if (err.status)
-        return res.status(err.status).json({ message: err.message });
-      return res.status(500).json(err);
-    });
+module.exports.login = async (req, res, next) => {
+  try {
+    const user = await User.findByCredentials(
+      req.body.email,
+      req.body.password
+    );
+    const token = await user.generateAuthToken();
+    res.send({ user, token });
+  } catch (e) {
+    res.status(400).json(e.message);
+  }
 };
 /**
  * Avatar

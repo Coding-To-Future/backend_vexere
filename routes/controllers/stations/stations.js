@@ -1,23 +1,23 @@
 const Station = require('../../../models/Station');
 
-module.exports.createStation = (req, res, next) => {
-  // console.log(req.body);
-  const { name, address, province } = req.body;
-  const newStation = new Station({
-    name,
-    address,
-    province,
-  });
-  newStation
-    .save()
-    .then((station) => res.status(201).json(station))
-    .catch((err) => res.status(500).json(err));
+module.exports.createStation = async (req, res, next) => {
+  const newStation = new Station(req.body);
+
+  try {
+    await newStation.save();
+    res.status(201).json(newStation);
+  } catch (error) {
+    error.status(500).send();
+  }
 };
 
-module.exports.getStation = (req, res, next) => {
-  Station.find()
-    .then((stations) => res.status(200).json(stations))
-    .catch((err) => res.status(500).json(err));
+module.exports.getStation = async (req, res, next) => {
+  try {
+    const stations = await Station.find();
+    res.status(200).json(stations);
+  } catch (error) {
+    res.status(500).send();
+  }
 };
 
 module.exports.getStationPaginated = async (req, res, next) => {
@@ -47,67 +47,51 @@ module.exports.getStationPaginated = async (req, res, next) => {
     res.status(200).json(results);
     next();
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).send();
   }
 };
 
-module.exports.getStationById = (req, res, next) => {
+module.exports.getStationById = async (req, res, next) => {
   const { id } = req.params;
-  Station.findById(id)
-    .then((station) => res.status(200).json(station))
-    .catch((err) => res.status(500).json(err));
+
+  try {
+    const station = await Station.findById(id);
+    if (!station) return res.status(404).send();
+    res.status(200).json(station);
+  } catch (error) {
+    error.status(500).send();
+  }
 };
 
-module.exports.updateStationById = (req, res, next) => {
-  const { id } = req.params;
-  const { name, address, province } = req.body;
-  Station.findById(id)
-    .then((station) => {
-      if (!station)
-        return Promise.reject({
-          status: 404,
-          message: 'Not found',
-        });
+module.exports.updateStationById = async (req, res, next) => {
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ['name', 'address', 'province'];
+  const isValidOperation = updates.every((update) =>
+    allowedUpdates.includes(update)
+  );
 
-      station.name = name;
-      station.address = address;
-      station.province = province;
+  if (!isValidOperation)
+    return res.status(400).send({ error: 'Invalid updates!' });
 
-      return station.save();
-    })
-    .then((station) => res.status(200).json(station))
-    .catch((err) => {
-      if (err.status)
-        return res.status(err.status).json({
-          message: err.message,
-        });
-
-      return res.status(500).json(err);
+  try {
+    const station = await Station.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
     });
+    if (!station) return res.status(404).send({ error: 'Station not found!' });
+
+    res.send(station);
+  } catch (e) {
+    res.status(500).send();
+  }
 };
 
-module.exports.deteteStationById = (req, res, next) => {
-  const { id } = req.params;
-  Station.deleteOne({
-    _id: id,
-  })
-    .then((result) => {
-      if (result.n === 0)
-        return Promise.reject({
-          //result.n trả về có bao nhiêu đối tượng được tìm thấy
-          status: 404,
-          message: 'Not found',
-        });
-      res.status(200).json({
-        message: 'Delete successfully',
-      });
-    })
-    .catch((err) => {
-      if (err.status)
-        return res.status(err.status).json({
-          message: err.message,
-        });
-
-      return res.status(500).json(err);
-    });
+module.exports.deteteStationById = async (req, res, next) => {
+  try {
+    const station = await Station.findByIdAndDelete(req.params.id);
+    if (!station) return res.status(404).send({ error: 'Station not found!' });
+    res.status(200).json({ message: 'Delete successfully!' });
+  } catch (e) {
+    res.status(500).send();
+  }
 };

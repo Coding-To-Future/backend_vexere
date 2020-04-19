@@ -7,11 +7,11 @@ const {
 } = require('../../../validations/users/validate.post.user');
 const router = express.Router();
 
-router.post('/', validatePostUser, userController.createUser);
+router.post('/', userController.createUser);
 router.get('/', userController.getUsers);
 router.get('/:id', userController.getUserById);
-router.put('/:id', userController.updateUserById);
-router.put(
+router.patch('/:id', userController.updateUserById);
+router.patch(
   '/change-password/:id',
   authenticate,
   userController.updatePasswordUser

@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { promisify } = require('util');
+const moment = require('moment');
 const validator = require('validator');
+const jwt = require('jsonwebtoken');
+
+const keys = require('../config/index');
 
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
     trim: true,
+    unique: true,
     lowercase: true,
     validate(value) {
       if (!validator.isEmail(value)) {
@@ -28,27 +32,47 @@ const userSchema = new mongoose.Schema({
   },
   fullName: { type: String, required: true, trim: true },
   userType: { type: String, default: 'client' },
-  phoneNumber: { type: String, trim: true, maxlength: 10 },
-  dayOfBirth: { type: String, trim: true },
+  phoneNumber: { type: String, required: true, trim: true, maxlength: 10 },
+  dayOfBirth: { type: String, required: true, trim: true },
   avatar: { type: Buffer },
+  tokens: [{ token: { type: String, required: true } }],
 });
 
-const genSalt = promisify(bcrypt.genSalt);
-const hash = promisify(bcrypt.hash);
+userSchema.methods.generateAuthToken = async function () {
+  const user = this;
+  const token = jwt.sign({ _id: user._id }, keys.secret_key, {
+    expiresIn: 3600,
+  });
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
 
-userSchema.pre('save', function (next) {
+  return token;
+};
+
+userSchema.statics.findByCredentials = async (email, password) => {
+  const user = await User.findOne({ email });
+  console.log('user', user);
+  if (!user) {
+    throw new Error('User not found!');
+  }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error('Password is incorrect!');
+  }
+  return user;
+};
+
+userSchema.pre('save', async function (next) {
   //save la su kien KO SU  dung arr fun vi se mat con tro this
-  const user = this; //this tro den ham func(next)
-  if (!user.isModified('password')) return next();
-  genSalt(10)
-    .then((salt) => {
-      return hash(user.password, salt);
-    })
-    .then((hash) => {
-      user.password = hash;
-      next(); //sang midd tiep theo, tang xu ly ben duoi, xong ve then ben findone
-    });
-  //truoc khi save --> hast pw
+  // console.log(this); //this la user instance
+  const user = this;
+  if (user.isModified('password')) {
+    user.password = await bcrypt.hash(user.password, 10);
+  }
+  if (user.isModified('dayOfBirth')) {
+    user.dayOfBirth = moment(user.dayOfBirth).format('DD/MM/YYYY');
+  }
+  next();
 });
 
 userSchema.methods.toJSON = function () {
