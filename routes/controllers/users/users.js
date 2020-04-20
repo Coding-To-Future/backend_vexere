@@ -1,23 +1,16 @@
 const User = require('../../../models/User');
-// const { JwtToken } = require("../../../models/JwtToken");
 const bcrypt = require('bcryptjs');
-// const { promisify } = require('util');
-// const jwt = require('jsonwebtoken');
-// const moment = require('moment');
 const sharp = require('sharp');
 
+// const { promisify } = require('util');
 // const comparePassword = promisify(bcrypt.compare);
 // const jwtSign = promisify(jwt.sign);
-
-require('dotenv').config();
-
-// const keys = require('../../../config/index');
 
 //thu vien util cho phep viet bcrypt o dang promist mac dinh chi o dang callback
 //phuong thuc promisify ho tro chuyen 1 callback thanh 1 promise
 
 /**
- * @todo register new user
+ * @todo api for User
  */
 
 module.exports.createUser = async (req, res, next) => {
@@ -43,9 +36,8 @@ module.exports.getUserById = async (req, res, next) => {
 
 module.exports.deteteUserById = async (req, res, next) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) return res.status(404).send({ error: 'User not found!' });
-    res.status(200).send({ message: 'Delete successfully!' });
+    await req.user.remove();
+    res.status(200).send(req.user);
   } catch (e) {
     res.status(500).send();
   }
@@ -62,30 +54,24 @@ module.exports.updateUserById = async (req, res, next) => {
     return res.status(400).send({ error: 'Invalid updates!' });
 
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).send({ error: 'User not found!' });
+    updates.forEach((update) => (req.user[update] = req.body[update]));
 
-    updates.forEach((update) => (user[update] = req.body[update]));
-
-    await user.save();
-    res.send(user);
+    await req.user.save();
+    res.send(req.user);
   } catch (e) {
     res.status(400).send(e);
   }
 };
 
 module.exports.updatePasswordUser = async (req, res, next) => {
-  const { id } = req.params;
   const { password, newPassword } = req.body;
 
   try {
-    const user = await User.findById(id);
-    if (!user) return res.status(404).send({ error: 'User not found!' });
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, req.user.password);
     if (!isMatch)
-      return res.status(400).send({ error: 'Password is incorrect!' });
-    user.password = newPassword;
-    await user.save();
+      return res.status(400).send({ error: 'Old password is incorrect!' });
+    req.user.password = newPassword;
+    await req.user.save();
     res.status(200).send({ message: 'Update password successfully!' });
   } catch (e) {
     res.status(500).send();
@@ -127,7 +113,7 @@ module.exports.logoutAll = async (req, res, next) => {
   }
 };
 /**
- * Avatar
+ * @todo api Avatar
  */
 module.exports.uploadAvatar = async (req, res, next) => {
   const { email, avatar } = req.user;

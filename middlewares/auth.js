@@ -17,18 +17,23 @@ module.exports.authenticate = async (req, res, next) => {
     req.user = user;
     next();
   } catch (e) {
-    res.status(401).send({ error: 'Please authenticate!' });
+    res
+      .status(401)
+      .send({ message: 'Access denied. You must log in to continue.' });
   }
 };
 
 module.exports.authorize = (userTypeArray) => {
-  return (req, res, next) => {
-    const { user } = req;
-    if (userTypeArray.findIndex((elm) => elm === user.userType) > -1)
-      return next();
-    // if (userType === user.userType) return next()
-    return res.status(403).json({
-      message: 'Ban da dang nhap nhung ko co quyen xem',
-    });
+  return async (req, res, next) => {
+    const isAdmin = await req.user.userType.includes(userTypeArray);
+    try {
+      if (!isAdmin)
+        throw new Error(
+          'Access denied. You are logged in but do not have permission to view.'
+        );
+      next();
+    } catch (e) {
+      res.status(403).json({ message: e.message });
+    }
   };
 };
