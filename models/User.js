@@ -38,6 +38,17 @@ const userSchema = new mongoose.Schema({
   tokens: [{ token: { type: String, required: true } }],
 });
 
+userSchema.methods.toJSON = function () {
+  const user = this;
+  const userObject = user.toObject();
+
+  delete userObject.password;
+  delete userObject.tokens;
+  delete userObject.avatar;
+
+  return userObject;
+};
+
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
   const token = jwt.sign({ _id: user._id }, keys.secret_key, {
@@ -51,7 +62,6 @@ userSchema.methods.generateAuthToken = async function () {
 
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
-  console.log('user', user);
   if (!user) {
     throw new Error('User not found!');
   }
@@ -63,7 +73,6 @@ userSchema.statics.findByCredentials = async (email, password) => {
 };
 
 userSchema.pre('save', async function (next) {
-  //save la su kien KO SU  dung arr fun vi se mat con tro this
   // console.log(this); //this la user instance
   const user = this;
   if (user.isModified('password')) {
@@ -74,13 +83,6 @@ userSchema.pre('save', async function (next) {
   }
   next();
 });
-
-userSchema.methods.toJSON = function () {
-  const user = this;
-  const userObject = user.toObject();
-  delete userObject.avatar;
-  return userObject;
-};
 
 const User = mongoose.model('User', userSchema, 'User');
 
