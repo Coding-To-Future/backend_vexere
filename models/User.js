@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const moment = require('moment');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
-
+const Ticket = require('../models/Ticket');
 const keys = require('../config/index');
 
 const userSchema = new mongoose.Schema({
@@ -87,6 +87,12 @@ userSchema.pre('save', async function (next) {
   if (user.isModified('dayOfBirth')) {
     user.dayOfBirth = moment(user.dayOfBirth).format('DD/MM/YYYY');
   }
+  next();
+});
+
+userSchema.pre('remove', async function (next) {
+  const user = this;
+  await Ticket.deleteMany({ userId: user._id });
   next();
 });
 
