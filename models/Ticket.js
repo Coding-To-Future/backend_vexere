@@ -5,10 +5,12 @@ const { seatSchema } = require('./Seat');
 const ticketSchema = new mongoose.Schema({
   tripId: {
     type: mongoose.Schema.Types.ObjectId,
+    required: true,
     ref: 'Trip',
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
+    required: true,
     ref: 'User',
   },
   seats: [seatSchema],

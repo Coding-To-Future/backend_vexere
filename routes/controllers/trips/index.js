@@ -1,16 +1,24 @@
-const express = require("express");
-// const {
-//   trip
-// } = require('../models/trip');
-const tripController = require("./trips");
+const express = require('express');
+const tripController = require('./trips');
 const router = express.Router();
+const { authenticate, authorize } = require('../../../middlewares/auth');
 
-router.post("/", tripController.createTrip);
-router.get("/search", tripController.searchTrips);
-router.get("/:limit", tripController.getTripsLimit);
-router.get("/detail-trip/:id", tripController.getTripById);
-router.get("/", tripController.getTripsAll);
-router.put("/:id", tripController.updateTripById);
-router.delete("/:id", tripController.deteteTripById);
+router.post('/', authenticate, authorize('admin'), tripController.createTrip);
+router.get('/search', tripController.searchTrips);
+router.get('/:limit', tripController.getTripsLimit);
+router.get('/detail-trip/:id', tripController.getTripById);
+router.get('/', tripController.getTripsAll);
+router.put(
+  '/:id',
+  authenticate,
+  authorize('admin'),
+  tripController.updateTripById
+);
+router.delete(
+  '/:id',
+  authenticate,
+  authorize('admin'),
+  tripController.deteteTripById
+);
 
 module.exports = router;

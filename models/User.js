@@ -38,6 +38,12 @@ const userSchema = new mongoose.Schema({
   tokens: [{ token: { type: String, required: true } }],
 });
 
+userSchema.virtual('ticket', {
+  ref: 'Ticket',
+  localField: '_id',
+  foreignField: 'userId',
+});
+
 userSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();

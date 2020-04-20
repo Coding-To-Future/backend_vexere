@@ -7,23 +7,22 @@ const {
 
 module.exports.createTicket = (req, res, next) => {
   const { tripId, seatCodes } = req.body;
-  const userId = req.user.id; //token
+  const userId = req.user._id; //token
+  console.log('module.exports.createTicket -> userId', userId);
 
   Trip.findById(tripId)
     .populate('fromStation')
     .populate('toStation')
     .then((trip) => {
       if (!trip)
-        return Promise.reject({ status: 404, message: 'Trip not found' }); // validation
-      //kiem tra voi danh sach ge con trong
-      //reduce
+        return Promise.reject({ status: 404, message: 'Trip not found' });
       const availableSeatCodes = trip.seats
         .filter((s) => !s.isBooked)
-        .map((s) => s.code); //ghe o dang false
+        .map((s) => s.code);
       let errorSeatCodes = [];
 
       seatCodes.forEach((code) => {
-        if (availableSeatCodes.indexOf(code) === -1) errorSeatCodes.push(code); //kiem tra ghe user nhap vao co trong availableSeatCodes hay ko, neu ko thi errorSeatCodes se luu tru ma ghe do
+        if (availableSeatCodes.indexOf(code) === -1) errorSeatCodes.push(code);
       });
 
       if (errorSeatCodes.length > 0)
@@ -31,14 +30,12 @@ module.exports.createTicket = (req, res, next) => {
           status: 400,
           message: 'Seats are not available',
           notAvailableSeats: errorSeatCodes,
-        }); //neu errorSeatCodes co ma ghe thi thong bao ra cho nguoi dung
+        });
 
       const newTicket = new Ticket({
-        //seatCodes bat buoc phai nhap dung tat ca thi moi chay
         tripId,
         userId,
         seats: seatCodes.map((s) => ({
-          //seats nhung tu seatSkeyma nen co _id
           isBooked: true,
           code: s,
         })),
@@ -46,23 +43,65 @@ module.exports.createTicket = (req, res, next) => {
       });
       trip.seats = trip.seats.map((s) => {
         if (seatCodes.indexOf(s.code) > -1) {
-          //seatCode co trong bang trip thi sua doi thanh true
           s.isBooked = true;
         }
         return s;
       });
-      return Promise.all([newTicket.save(), trip.save()]); //luu 2 tien trinh asyc xuong db
+      return Promise.all([newTicket.save(), trip.save()]);
     })
 
     .then((result) => {
-      sendBookingTicketEmail(result[0], result[1], req.user); //ticket, trip, user
+      sendBookingTicketEmail(result[0], result[1], req.user);
       res.status(200).json(result[0]);
     })
     .catch((err) => res.status(500).json(err));
 };
 
-module.exports.getTicket = (req, res, next) => {
-  Ticket.countDocuments()
-    .then((tickets) => res.status(200).json(tickets))
-    .catch((err) => res.status(500).json(err));
+module.exports.getTicket = async (req, res, next) => {
+  try {
+    await req.user.populate('ticket').execPopulate();
+    res.status(200).send(req.user.ticket);
+  } catch (e) {
+    res.status(500).send();
+  }
+};
+
+module.exports.getTicketById = async (req, res, next) => {
+  try {
+    const ticket = await Ticket.findOne({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
+    if (!ticket)
+      res.status(404).json({ message: 'Can not find. Ticket not found' });
+    res.status(200).send(ticket);
+  } catch (e) {
+    res.status(500).send();
+  }
+};
+/**
+ * chưa xử lý được seat trong trip thành false sau khi xóa
+ */
+module.exports.deleteTicketById = async (req, res, next) => {
+  try {
+    const ticket = await Ticket.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
+    if (!ticket)
+      res.status(404).json({ message: 'Can not delete. Ticket not found' });
+    ticket.seats.map((seat) => (seat.isBooked = false));
+    res.status(200).send(ticket);
+  } catch (e) {
+    res.status(500).send();
+  }
+};
+
+module.exports.deleteTickets = async (req, res, next) => {
+  try {
+    await Ticket.findOneAndDelete({ userId: req.user._id });
+    res.status(200).send({ message: 'Delete all ticket successfully!' });
+  } catch (e) {
+    es.status(500).send();
+  }
 };

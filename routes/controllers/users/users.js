@@ -57,7 +57,7 @@ module.exports.updateUserById = async (req, res, next) => {
     updates.forEach((update) => (req.user[update] = req.body[update]));
 
     await req.user.save();
-    res.send(req.user);
+    res.status(200).send(req.user);
   } catch (e) {
     res.status(400).send(e);
   }
@@ -85,7 +85,7 @@ module.exports.login = async (req, res, next) => {
       req.body.password
     );
     const token = await user.generateAuthToken();
-    res.send({ user, token });
+    res.status(200).send({ user, token });
   } catch (e) {
     res.status(400).json(e.message);
   }

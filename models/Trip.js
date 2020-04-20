@@ -4,10 +4,12 @@ const { seatSchema } = require('./Seat');
 const tripSchema = new mongoose.Schema({
   fromStation: {
     type: mongoose.Schema.Types.ObjectId,
+    required: true,
     ref: 'Station',
   },
   toStation: {
     type: mongoose.Schema.Types.ObjectId,
+    required: true,
     ref: 'Station',
   },
   startTime: {
