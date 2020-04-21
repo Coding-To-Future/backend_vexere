@@ -16,20 +16,19 @@ router.patch(
   authenticate,
   userController.updatePasswordUser
 );
-router.delete('/me', authenticate, userController.deteteUserById);
+router.delete('/me', authenticate, userController.deleteUserById);
 router.post('/login', userController.login);
 router.post('/logout', authenticate, userController.logout);
 router.post('/logout-all', authenticate, userController.logoutAll);
 
 router.post(
-  '/upload-avatar',
+  '/me/avatar',
   authenticate,
-  uploadImage('images'),
-  userController.uploadAvatar
-  // (req, res, next) => {
-  //   console.log(req.files);
-  // res.json('done');
-  // res.status(400).send({ message: err.message });
+  uploadImage('avatar'),
+  userController.uploadAvatar,
+  (error, req, res, next) => {
+    res.status(400).send({ message: error.message });
+  }
 );
 
 router.delete('/me/avatar', authenticate, userController.deleteAvatar);

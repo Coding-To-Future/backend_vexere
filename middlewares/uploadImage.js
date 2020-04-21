@@ -7,25 +7,7 @@ const mkdirp = require('mkdirp');
 // ./uploads/coach
 
 module.exports.uploadImage = (type) => {
-  //   // mkdirp(`./uploads/${type}`).catch(err => console.log(err));
-  //   // const storage = multer.diskStorage({
-  //   //   destination: function(req, file, cb) {
-  //   //     cb(null, `./uploads/${type}`);
-  //   //   },
-  //   //   filename: function(req, file, cb) {
-  //   //     cb(null, Date.now() + "_" + file.originalname);
-  //   //   },
-  //   //   limits: {
-  //   //     fileSize: 1000000
-  //   //   }
-  //   // });
-
-  //   // const storage = multer({
-
-  //   // });
-
   const upload = multer({
-    // dest: type,
     limits: {
       fileSize: 1000000,
     },
@@ -36,9 +18,7 @@ module.exports.uploadImage = (type) => {
       cb(undefined, true); //neu la file pdf
     },
   });
-
-  // const upload = multer({ storage: storage });
-  return upload.single(type); //key de nhap vao test tu pocman
+  return upload.single(type);
 };
 
 //CLOUDINARY
