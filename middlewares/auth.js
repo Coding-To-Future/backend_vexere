@@ -29,7 +29,7 @@ module.exports.authorize = (userTypeArray) => {
     try {
       if (!isAdmin)
         throw new Error(
-          'Access denied. You are logged in but do not have permission to view.'
+          'Access denied. You are logged in but do not have permission.'
         );
       next();
     } catch (e) {

@@ -11,16 +11,7 @@ module.exports.createStation = async (req, res, next) => {
   }
 };
 
-module.exports.getStation = async (req, res, next) => {
-  try {
-    const stations = await Station.find();
-    res.status(200).json(stations);
-  } catch (error) {
-    res.status(500).send();
-  }
-};
-
-module.exports.getStationPaginated = async (req, res, next) => {
+module.exports.getStationPaginatedFilter = async (req, res, next) => {
   const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
 
@@ -43,7 +34,12 @@ module.exports.getStationPaginated = async (req, res, next) => {
   }
 
   try {
-    results.results = await Station.find().limit(limit).skip(startIndex).exec();
+    results.results = await Station.find(
+      req.query.province ? { province: req.query.province } : {}
+    )
+      .limit(limit)
+      .skip(startIndex)
+      .exec();
     res.status(200).json(results);
     next();
   } catch (err) {
