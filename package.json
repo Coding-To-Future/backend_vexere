@@ -9,7 +9,8 @@
     "start:staging": "set NODE_ENV=staging& nodemon server.js",
     "debug": "nodemon server.js",
     "debug:log": "DEBUG=* nodemon server.js",
-    "debug:log-win": "set DEBUG=* & nodemon server.js"
+    "debug:log-win": "set DEBUG=* & nodemon server.js",
+    "push:master": "git add . && git commit -m $MESS && git push origin master"
   },
   "keywords": [],
   "author": "",

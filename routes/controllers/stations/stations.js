@@ -10,7 +10,9 @@ module.exports.createStation = async (req, res, next) => {
     error.status(500).send();
   }
 };
-
+/**
+ * chưa fix được sort theo unicode
+ */
 module.exports.getStationPaginatedFilter = async (req, res, next) => {
   const page = parseInt(req.query.page);
   const limit = parseInt(req.query.limit);
@@ -19,6 +21,12 @@ module.exports.getStationPaginatedFilter = async (req, res, next) => {
   const endIndex = page * limit;
 
   const results = {};
+  const sort = {};
+  if (req.query.sortBy) {
+    const parts = req.query.sortBy.split(':');
+    sort[parts[0]] = parts[1] === 'desc' ? -1 : 1;
+  }
+
   if (endIndex < (await Station.countDocuments().exec())) {
     results.next = {
       page: page + 1,
@@ -37,6 +45,7 @@ module.exports.getStationPaginatedFilter = async (req, res, next) => {
     results.results = await Station.find(
       req.query.province ? { province: req.query.province } : {}
     )
+      .sort(sort)
       .limit(limit)
       .skip(startIndex)
       .exec();
