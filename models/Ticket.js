@@ -19,7 +19,7 @@ const ticketSchema = new mongoose.Schema({
     required: true,
     validate(value) {
       if (value < 0) {
-        throw new Error('Price must be a postive number');
+        throw new Error('Price must be a positive number');
       }
     },
   },

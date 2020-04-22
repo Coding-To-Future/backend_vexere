@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const { seatSchema } = require('./Seat');
 
 const tripSchema = new mongoose.Schema(
@@ -23,16 +24,17 @@ const tripSchema = new mongoose.Schema(
       type: Number,
       required: true,
       trim: true,
-      default: 0,
+      // default: 0,
       validate(value) {
         if (value < 0) {
-          throw new Error('Price must be a postive number');
+          throw new Error('Price must be a positive number');
         }
       },
     },
   },
   { timestamps: true }
 );
+
 const Trip = mongoose.model('Trip', tripSchema, 'Trip');
 
 module.exports = Trip;

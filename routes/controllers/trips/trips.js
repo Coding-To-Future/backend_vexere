@@ -1,9 +1,7 @@
-const url = require('url');
-const _ = require('lodash');
-const moment = require('moment');
-
 const Trip = require('../../../models/Trip');
 const { Seat } = require('../../../models/Seat');
+const moment = require('moment');
+
 const seatCodes = [
   'A01',
   'A02',
@@ -55,6 +53,8 @@ module.exports.getTripsLimit = (req, res, next) => {
 
 module.exports.getTripsAll = (req, res, next) => {
   Trip.find()
+    .populate('fromStation')
+    .populate('toStation')
     .then((trip) => res.status(200).json(trip))
     .catch((err) => res.status(500).json(err));
 };
@@ -68,7 +68,7 @@ module.exports.getTripById = (req, res, next) => {
 
 module.exports.updateTripById = (req, res, next) => {
   const { id } = req.params;
-  const { fromStation, toStation, startTime, price } = req.body; //ket qua nhap vao tu nguoi dung
+  const { fromStation, toStation, startTime, price } = req.body;
   Trip.findById(id)
     .then((trip) => {
       if (!trip)
@@ -93,7 +93,7 @@ module.exports.updateTripById = (req, res, next) => {
     });
 };
 
-module.exports.deteteTripById = (req, res, next) => {
+module.exports.deleteTripById = (req, res, next) => {
   const { id } = req.params;
   Trip.deleteOne({ _id: id })
     .then((result) => {
@@ -113,27 +113,21 @@ module.exports.deteteTripById = (req, res, next) => {
     });
 };
 
-module.exports.searchTrips = (req, res, next) => {
-  // let queryString = url.parse(
-  //     (0, req.url.lastIndexOf("/")),
-  //   true
-  // ).query;
+module.exports.searchTrips = async (req, res, next) => {
+  const fromProvince = req.query.fromProvince;
+  const toProvince = req.query.toProvince;
+  const startTime = moment(req.query.startTime).format();
+  try {
+    const trip = await Trip.find({ startTime: { $gte: startTime } })
+      .populate({ path: 'fromStation', match: { province: fromProvince } })
+      .populate({ path: 'toStation', match: { province: toProvince } });
 
-  const { fromStation, toStation, startTime } = req.body;
-  Trip.find({
-    fromStation: fromStation,
-    toStation: toStation,
-    startTime: { $gte: startTime },
-  })
-    .then((trip) => {
-      if (_.isEmpty(trip))
-        return Promise.reject({ status: 404, message: 'Not found!' });
-      res.status(200).json(trip);
-    })
-    .catch((err) => {
-      if (!err.status) return res.json(err);
-      res.status(err.status).json(err);
-    });
+    if (trip.length === 0)
+      return res
+        .status(404)
+        .send({ message: "Sorry! We don't have trip for you." });
+    res.status(200).send(trip);
+  } catch (e) {
+    res.status(500).send(e);
+  }
 };
-
-// module.exports.getTri

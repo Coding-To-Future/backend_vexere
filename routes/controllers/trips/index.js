@@ -18,7 +18,7 @@ router.delete(
   '/:id',
   authenticate,
   authorize('admin'),
-  tripController.deteteTripById
+  tripController.deleteTripById
 );
 
 module.exports = router;

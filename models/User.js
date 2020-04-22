@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     validate(value) {
       if (value.toLowerCase().includes('password')) {
-        throw new Error('Password cannot contant "password"');
+        throw new Error('Password cannot contain "password"');
       }
     },
   },
@@ -79,7 +79,6 @@ userSchema.statics.findByCredentials = async (email, password) => {
 };
 
 userSchema.pre('save', async function (next) {
-  // console.log(this); //this la user instance
   const user = this;
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 10);
