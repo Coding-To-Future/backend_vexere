@@ -57,21 +57,45 @@ module.exports.createTicket = (req, res, next) => {
     .catch((err) => res.status(500).json(err));
 };
 
+/**
+ * @todo: get ticket theo user
+ */
+
 module.exports.getTicket = async (req, res, next) => {
   try {
-    await req.user.populate('ticket').execPopulate();
+    await req.user
+      .populate({
+        path: 'ticket',
+        populate: {
+          path: 'tripId userId',
+          select: 'fromStation toStation startTime email fullName phoneNumber',
+          populate: { path: 'fromStation toStation' },
+        },
+      })
+      .execPopulate();
     res.status(200).send(req.user.ticket);
   } catch (e) {
     res.status(500).send();
   }
 };
 
+/**
+ * @todo: get ticket theo id có ngăn chặn người khác xem vé khi biết id vé
+ */
+
 module.exports.getTicketById = async (req, res, next) => {
   try {
     const ticket = await Ticket.findOne({
       _id: req.params.id,
       userId: req.user._id,
-    });
+    })
+      .populate({
+        path: 'tripId',
+        select: 'fromStation toStation startTime',
+        populate: { path: 'fromStation toStation' },
+      })
+      .populate({ path: 'userId', select: 'email fullName phoneNumber' });
+
     if (!ticket)
       res.status(404).json({ message: 'Can not find. Ticket not found' });
     res.status(200).send(ticket);
@@ -79,9 +103,11 @@ module.exports.getTicketById = async (req, res, next) => {
     res.status(500).send();
   }
 };
+
 /**
  * chưa xử lý được seat trong trip thành false sau khi xóa
  */
+
 module.exports.deleteTicketById = async (req, res, next) => {
   try {
     const ticket = await Ticket.findOneAndDelete({
