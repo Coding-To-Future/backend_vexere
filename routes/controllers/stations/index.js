@@ -7,6 +7,6 @@ router.post('/', authenticate, stationController.createStation);
 router.get('/', stationController.getStationPaginatedFilter);
 router.get('/:id', stationController.getStationById);
 router.patch('/:id', authenticate, stationController.updateStationById);
-router.delete('/:id', authenticate, stationController.deteteStationById);
+router.delete('/:id', authenticate, stationController.deleteStationById);
 
 module.exports = router;

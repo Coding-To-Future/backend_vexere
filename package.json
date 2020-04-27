@@ -33,6 +33,7 @@
     "multer-s3": "^2.9.0",
     "multer-storage-cloudinary": "^2.2.1",
     "nodemailer": "^6.4.2",
+    "nodemon": "^2.0.3",
     "sharp": "^0.25.1",
     "swagger-jsdoc": "^3.5.0",
     "swagger-ui-express": "^4.1.3",
