@@ -1,6 +1,6 @@
 const Trip = require('../../../models/Trip');
 const { Seat } = require('../../../models/Seat');
-const moment = require('moment');
+// const moment = require('moment');
 
 const seatCodes = [
   'A01',
@@ -47,6 +47,8 @@ module.exports.getTripsLimit = (req, res, next) => {
   const { limit } = req.params;
   Trip.find()
     .limit(parseInt(limit))
+    .populate('fromStation')
+    .populate('toStation')
     .then((trip) => res.status(200).json(trip))
     .catch((err) => res.status(500).json(err));
 };
@@ -62,6 +64,8 @@ module.exports.getTripsAll = (req, res, next) => {
 module.exports.getTripById = (req, res, next) => {
   const { id } = req.params;
   Trip.findById(id)
+    .populate('fromStation')
+    .populate('toStation')
     .then((trip) => res.status(200).json(trip))
     .catch((err) => res.status(500).json(err));
 };
@@ -116,17 +120,25 @@ module.exports.deleteTripById = (req, res, next) => {
 module.exports.searchTrips = async (req, res, next) => {
   const fromProvince = req.query.fromProvince;
   const toProvince = req.query.toProvince;
-  const startTime = moment(req.query.startTime).format();
+  const startTime = req.query.startTime;
   try {
     const trip = await Trip.find({ startTime: { $gte: startTime } })
-      .populate({ path: 'fromStation', match: { province: fromProvince } })
+      .populate({
+        path: 'fromStation',
+        match: { province: fromProvince },
+      })
       .populate({ path: 'toStation', match: { province: toProvince } });
 
-    if (trip.length === 0)
+    const tripReal = trip.filter(
+      (trip) => trip.fromStation !== null && trip.toStation !== null
+    );
+
+    if (tripReal.length === 0)
       return res
         .status(404)
         .send({ message: "Sorry! We don't have trip for you." });
-    res.status(200).send(trip);
+
+    res.status(200).send(tripReal);
   } catch (e) {
     res.status(500).send(e);
   }
