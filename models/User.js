@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
   userType: { type: String, default: 'client' },
   phoneNumber: { type: String, required: true, trim: true, maxlength: 10 },
   dayOfBirth: { type: String, required: true, trim: true },
-  avatar: { type: Buffer },
+  avatar: { type: String, trim: true },
   tokens: [{ token: { type: String, required: true } }],
 });
 

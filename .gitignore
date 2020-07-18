@@ -3,3 +3,4 @@ playground
 .env
 yarn.lock
 uploads
+./public/img

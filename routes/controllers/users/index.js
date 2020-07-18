@@ -27,6 +27,7 @@ router.post(
   uploadImage('avatar'),
   userController.uploadAvatar,
   (error, req, res, next) => {
+    // console.log(req);
     res.status(400).send({ message: error.message });
   }
 );

@@ -7,7 +7,8 @@ const mkdirp = require('mkdirp');
 // ./uploads/coach
 
 module.exports.uploadImage = (type) => {
-  const upload = multer({
+  const storage = multer({
+    dest: `public/img/`,
     limits: {
       fileSize: 1000000,
     },
@@ -15,10 +16,10 @@ module.exports.uploadImage = (type) => {
       if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
         return cb(new Error('Please upload an Image'));
       }
-      cb(undefined, true); //neu la file pdf
+      cb(undefined, true);
     },
   });
-  return upload.single(type);
+  return storage.single(type);
 };
 
 //CLOUDINARY
