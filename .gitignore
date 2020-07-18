@@ -2,5 +2,6 @@ node_modules
 playground
 .env
 yarn.lock
+yarn-error.log
 uploads
-./public/img
+public/img
