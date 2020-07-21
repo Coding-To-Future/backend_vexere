@@ -116,15 +116,15 @@ module.exports.logoutAll = async (req, res, next) => {
  */
 module.exports.uploadAvatar = async (req, res, next) => {
   try {
-    const tempFile = `${process.cwd()}/${req.file.path}`;
-    req.user.avatar = tempFile;
-    await req.user.save();
+    req.user.avatar = req.file.location;
+    await req.user.save(req.user);
     res.status(201).send({
       message: 'Upload message successfully',
-      avatar: tempFile,
+      avatar: req.user.avatar,
     });
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    console.error(e);
+    res.status(500).send(e);
   }
 };
 
@@ -143,9 +143,7 @@ module.exports.getAvatarById = async (req, res, next) => {
     const user = await User.findById(req.params.id);
     if (!user || !user.avatar)
       throw new Error("User not found or User don't have avatar");
-    console.log(user.avatar);
-    // res.set('Content-Type', 'image/jpg');
-    res.status(200).send({ avatar: user.avatar });
+    res.status(200).send(user.avatar);
   } catch (e) {
     res.status(404).send({ message: e.message });
   }
