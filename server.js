@@ -9,7 +9,6 @@ const cors = require('cors');
 const chalk = require('chalk');
 
 console.log(chalk.bold.green.inverse('node env', process.env.NODE_ENV));
-// fs.appendFileSync('node.txt', '\ntoi ten la');
 
 mongoose
   .connect(keys.mongo_uri, {
