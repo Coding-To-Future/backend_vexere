@@ -39,7 +39,13 @@ module.exports.createTrip = (req, res, next) => {
   //khong dung mang vi o day muon no la doi tuong code va is book nua
   newTrip
     .save()
-    .then((trip) => res.status(201).json(trip))
+    .then(async (trip) => {
+      let id = trip._id;
+      const newTrip = await Trip.findById(id)
+        .populate('fromStation')
+        .populate('toStation');
+      return res.status(201).json(newTrip);
+    })
     .catch((err) => res.status(500).json(err));
 };
 
