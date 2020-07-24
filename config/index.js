@@ -6,9 +6,6 @@ let email;
 let password;
 let host;
 
-// const mongo_cloud_url = process.env.MONGO_STAGING_URL
-// const mongo_local_url = process.env.MONGO_LOCAL_URL
-
 switch (process.env.NODE_ENV) {
   case "local":
     mongo_uri = process.env.MONGO_LOCAL_URL;
