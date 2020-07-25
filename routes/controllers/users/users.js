@@ -143,7 +143,9 @@ module.exports.getAvatarById = async (req, res, next) => {
     const user = await User.findById(req.params.id);
     if (!user || !user.avatar)
       throw new Error("User not found or User don't have avatar");
-    res.status(200).send(user.avatar);
+    res.status(200).send({
+      avatar: user.avatar,
+    });
   } catch (e) {
     res.status(404).send({ message: e.message });
   }
