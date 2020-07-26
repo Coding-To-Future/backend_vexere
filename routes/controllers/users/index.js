@@ -16,7 +16,7 @@ router.patch(
   authenticate,
   userController.updatePasswordUser
 );
-router.delete('/me', authenticate, userController.deleteUserById);
+router.delete('/:id', userController.deleteUserById);
 router.post('/login', userController.login);
 router.post('/logout', authenticate, userController.logout);
 router.post('/logout-all', authenticate, userController.logoutAll);

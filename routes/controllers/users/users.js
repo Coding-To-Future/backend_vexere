@@ -25,7 +25,10 @@ module.exports.createUser = async (req, res, next) => {
 
 module.exports.getUsers = (req, res, next) => {
   User.find()
-    .then((user) => res.status(200).json(user))
+    .then((user) => {
+      user = user.filter((user) => user.userType !== 'admin');
+      return res.status(200).json(user);
+    })
     .catch((err) => res.status(500).json(err));
 };
 
@@ -35,10 +38,14 @@ module.exports.getUserById = async (req, res, next) => {
 
 module.exports.deleteUserById = async (req, res, next) => {
   try {
-    await req.user.remove();
-    res.status(200).send(req.user);
+    const user = await User.findById(req.params.id);
+    if (!user) throw new Error('User not found');
+
+    await user.remove();
+    return res.status(200).send({ message: 'Delete user successfully' });
   } catch (e) {
-    res.status(500).send();
+    console.error(e);
+    res.status(500).send({ message: e.message });
   }
 };
 
