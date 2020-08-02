@@ -93,7 +93,7 @@ module.exports.login = async (req, res, next) => {
     const token = await user.generateAuthToken();
     res.status(200).send({ user, token });
   } catch (e) {
-    res.status(400).json(e.message);
+    res.json({ message: e.message, status: 400 });
   }
 };
 
