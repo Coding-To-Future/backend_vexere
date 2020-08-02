@@ -71,11 +71,11 @@ userSchema.methods.generateAuthToken = async function () {
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user) {
-    throw new Error('User not found!');
+    throw new Error('Email không tồn tại trong hệ thống');
   }
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    throw new Error('Password is incorrect!');
+    throw new Error('Mật khẩu không chính xác');
   }
   return user;
 };
