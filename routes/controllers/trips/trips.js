@@ -1,32 +1,32 @@
-const Trip = require('../../../models/Trip');
-const { Seat } = require('../../../models/Seat');
+const Trip = require("../../../models/Trip");
+const { Seat } = require("../../../models/Seat");
 // const moment = require('moment');
 
 const seatCodes = [
-  'A01',
-  'A02',
-  'A03',
-  'A04',
-  'A05',
-  'A06',
-  'A07',
-  'A08',
-  'A09',
-  'A10',
-  'A11',
-  'A12',
-  'B01',
-  'B02',
-  'B03',
-  'B04',
-  'B05',
-  'B06',
-  'B07',
-  'B08',
-  'B09',
-  'B10',
-  'B11',
-  'B12',
+  "A01",
+  "A02",
+  "A03",
+  "A04",
+  "A05",
+  "A06",
+  "A07",
+  "A08",
+  "A09",
+  "A10",
+  "A11",
+  "A12",
+  "B01",
+  "B02",
+  "B03",
+  "B04",
+  "B05",
+  "B06",
+  "B07",
+  "B08",
+  "B09",
+  "B10",
+  "B11",
+  "B12",
 ];
 
 module.exports.createTrip = (req, res, next) => {
@@ -41,9 +41,7 @@ module.exports.createTrip = (req, res, next) => {
     .save()
     .then(async (trip) => {
       let id = trip._id;
-      const newTrip = await Trip.findById(id)
-        .populate('fromStation')
-        .populate('toStation');
+      const newTrip = await Trip.findById(id).populate("fromStation").populate("toStation");
       return res.status(201).json(newTrip);
     })
     .catch((err) => res.status(500).json(err));
@@ -53,16 +51,16 @@ module.exports.getTripsLimit = (req, res, next) => {
   const { limit } = req.params;
   Trip.find()
     .limit(parseInt(limit))
-    .populate('fromStation')
-    .populate('toStation')
+    .populate("fromStation")
+    .populate("toStation")
     .then((trip) => res.status(200).json(trip))
     .catch((err) => res.status(500).json(err));
 };
 
 module.exports.getTripsAll = (req, res, next) => {
   Trip.find()
-    .populate('fromStation')
-    .populate('toStation')
+    .populate("fromStation")
+    .populate("toStation")
     .then((trip) => res.status(200).json(trip))
     .catch((err) => res.status(500).json(err));
 };
@@ -70,37 +68,35 @@ module.exports.getTripsAll = (req, res, next) => {
 module.exports.getTripById = (req, res, next) => {
   const { id } = req.params;
   Trip.findById(id)
-    .populate('fromStation')
-    .populate('toStation')
+    .populate("fromStation")
+    .populate("toStation")
     .then((trip) => res.status(200).json(trip))
     .catch((err) => res.status(500).json(err));
 };
 
-module.exports.updateTripById = (req, res, next) => {
+module.exports.updateTripById = async (req, res, next) => {
   const { id } = req.params;
   const { fromStation, toStation, startTime, price } = req.body;
-  Trip.findById(id)
-    .then((trip) => {
-      if (!trip)
-        return Promise.reject({
-          status: 404,
-          message: 'Not found',
-        });
-      trip.fromStation = fromStation;
-      trip.toStation = toStation;
-      trip.startTime = startTime;
-      trip.price = price;
+  try {
+    const query = Trip.findById(id);
+    const trip = await query;
+    if (!trip)
+      return {
+        status: 404,
+        message: "Not found",
+      };
+    trip.fromStation = fromStation;
+    trip.toStation = toStation;
+    trip.startTime = startTime;
+    trip.price = price;
 
-      return trip.save();
-    })
-    .then((trip) => res.status(200).json(trip))
-    .catch((err) => {
-      if (err.status)
-        return status(res.status).json({
-          message: err.message,
-        });
-      return res.status(500).json(err);
-    });
+    await trip.save();
+    const rs = await query.populate("fromStation").populate("toStation");
+    return res.status(200).json(rs);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json(error);
+  }
 };
 
 module.exports.deleteTripById = (req, res, next) => {
@@ -110,9 +106,9 @@ module.exports.deleteTripById = (req, res, next) => {
       if (result.n === 0)
         return Promise.reject({
           status: 400,
-          message: 'Not found',
+          message: "Not found",
         });
-      res.status(200).json({ message: 'Delete successfully' });
+      res.status(200).json({ message: "Delete successfully" });
     })
     .catch((err) => {
       if (err.status)
@@ -130,19 +126,15 @@ module.exports.searchTrips = async (req, res, next) => {
   try {
     const trip = await Trip.find({ startTime: { $gte: startTime } })
       .populate({
-        path: 'fromStation',
+        path: "fromStation",
         match: { province: fromProvince },
       })
-      .populate({ path: 'toStation', match: { province: toProvince } });
+      .populate({ path: "toStation", match: { province: toProvince } });
 
-    const tripReal = trip.filter(
-      (trip) => trip.fromStation !== null && trip.toStation !== null
-    );
+    const tripReal = trip.filter((trip) => trip.fromStation !== null && trip.toStation !== null);
 
     if (tripReal.length === 0)
-      return res
-        .status(404)
-        .send({ message: "Sorry! We don't have trip for you." });
+      return res.status(404).send({ message: "Sorry! We don't have trip for you." });
 
     res.status(200).send(tripReal);
   } catch (e) {
