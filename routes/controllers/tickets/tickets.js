@@ -1,24 +1,19 @@
-const Ticket = require('../../../models/Ticket');
-const User = require('../../../models/User');
-const Trip = require('../../../models/Trip');
-const {
-  sendBookingTicketEmail,
-} = require('../../../services/email/sendBookingTicket');
+const Ticket = require("../../../models/Ticket");
+const User = require("../../../models/User");
+const Trip = require("../../../models/Trip");
+const { sendBookingTicketEmail } = require("../../../services/email/sendBookingTicket");
 
 module.exports.createTicket = (req, res, next) => {
   const { tripId, seatCodes } = req.body;
   const userId = req.user._id; //token
-  console.log('module.exports.createTicket -> userId', userId);
+  console.log("module.exports.createTicket -> userId", userId);
 
   Trip.findById(tripId)
-    .populate('fromStation')
-    .populate('toStation')
+    .populate("fromStation")
+    .populate("toStation")
     .then((trip) => {
-      if (!trip)
-        return Promise.reject({ status: 404, message: 'Trip not found' });
-      const availableSeatCodes = trip.seats
-        .filter((s) => !s.isBooked)
-        .map((s) => s.code);
+      if (!trip) return Promise.reject({ status: 404, message: "Trip not found" });
+      const availableSeatCodes = trip.seats.filter((s) => !s.isBooked).map((s) => s.code);
       let errorSeatCodes = [];
 
       seatCodes.forEach((code) => {
@@ -28,7 +23,7 @@ module.exports.createTicket = (req, res, next) => {
       if (errorSeatCodes.length > 0)
         return Promise.reject({
           status: 400,
-          message: 'Seats are not available',
+          message: "Seats are not available",
           notAvailableSeats: errorSeatCodes,
         });
 
@@ -65,11 +60,11 @@ module.exports.getTicket = async (req, res, next) => {
   try {
     await req.user
       .populate({
-        path: 'ticket',
+        path: "ticket",
         populate: {
-          path: 'tripId userId',
-          select: 'fromStation toStation startTime email fullName phoneNumber',
-          populate: { path: 'fromStation toStation' },
+          path: "tripId userId",
+          select: "fromStation toStation startTime email fullName phoneNumber",
+          populate: { path: "fromStation toStation" },
         },
       })
       .execPopulate();
@@ -90,14 +85,13 @@ module.exports.getTicketById = async (req, res, next) => {
       userId: req.user._id,
     })
       .populate({
-        path: 'tripId',
-        select: 'fromStation toStation startTime',
-        populate: { path: 'fromStation toStation' },
+        path: "tripId",
+        select: "fromStation toStation startTime",
+        populate: { path: "fromStation toStation" },
       })
-      .populate({ path: 'userId', select: 'email fullName phoneNumber' });
+      .populate({ path: "userId", select: "email fullName phoneNumber" });
 
-    if (!ticket)
-      res.status(404).json({ message: 'Can not find. Ticket not found' });
+    if (!ticket) res.status(404).json({ message: "Can not find. Ticket not found" });
     res.status(200).send(ticket);
   } catch (e) {
     res.status(500).send();
@@ -114,8 +108,7 @@ module.exports.deleteTicketById = async (req, res, next) => {
       _id: req.params.id,
       userId: req.user._id,
     });
-    if (!ticket)
-      res.status(404).json({ message: 'Can not delete. Ticket not found' });
+    if (!ticket) res.status(404).json({ message: "Can not delete. Ticket not found" });
     ticket.seats.map((seat) => (seat.isBooked = false));
     res.status(200).send(ticket);
   } catch (e) {
@@ -126,8 +119,23 @@ module.exports.deleteTicketById = async (req, res, next) => {
 module.exports.deleteTickets = async (req, res, next) => {
   try {
     await Ticket.findOneAndDelete({ userId: req.user._id });
-    res.status(200).send({ message: 'Delete all ticket successfully!' });
+    res.status(200).send({ message: "Delete all ticket successfully!" });
   } catch (e) {
-    es.status(500).send();
+    res.status(500).send();
+  }
+};
+
+module.exports.getAllTicket = async (req, res, next) => {
+  try {
+    const ticket = await Ticket.find()
+      .populate({
+        path: "tripId",
+        select: "fromStation toStation startTime price",
+        populate: { path: "fromStation toStation" },
+      })
+      .populate({ path: "userId", select: "email fullName phoneNumber" });
+    res.status(200).send({ list: ticket, message: "Get all ticket successfully!" });
+  } catch (e) {
+    res.status(500).send(e);
   }
 };
