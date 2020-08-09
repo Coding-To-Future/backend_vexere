@@ -105,19 +105,16 @@
         .invoice table .qty,
         .invoice table .total,
         .invoice table .unit {
-            text-align: right;
+            text-align: center;
             font-size: 1.2em
         }
 
         .invoice table .no {
-            color: #fff;
-            font-size: 1.6em;
-            background: #3989c6
+
+            font-size: 1.5em;
         }
 
-        .invoice table .unit {
-            background: #ddd
-        }
+        .invoice table .unit {}
 
         .invoice table .total {
             background: #3989c6;
@@ -167,7 +164,7 @@
     <div id="invoice">
         <div class="invoice overflow-auto">
             <div style="min-width: 600px">
-                <header>
+                {{!-- <header>
                     <div class="row">
                         <div class="col">
                             <a target="_blank" href="https://lobianijs.com/">
@@ -185,65 +182,48 @@
                             <div>company@example.com</div>
                         </div>
                     </div>
-                </header>
+                </header> --}}
                 <main>
                     <div class="row contacts">
                         <div class="col invoice-to">
-                            <div class="text-gray-light">INVOICE TO:</div>
+                            <div class="text-gray-light">Gửi đến</div>
                             <h2 class="to"> {{email}}</h2>
-
-                            <div class="email"><a href="mailto:john@example.com">john@example.com</a></div>
                         </div>
                     </div>
                     <table border="0" cellspacing="0" cellpadding="0">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th class="text-left">DESCRIPTION</th>
-                                <th class="text-right">UNIT PRICE</th>
-                                <th class="text-right">QUANTITY</th>
-                                <th class="text-right">TOTAL</th>
+                                <th class="text-center">KHỞI HÀNH</th>
+                                <th class="text-center">ĐIỂM ĐẾN</th>
+                                <th class="text-center">SỐ LƯỢNG GHẾ</th>
+                                <th class="text-center">SỐ GHẾ</th>
+                                <th class="text-center">GIÁ TIỀN</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-
-
                                 <td class="no">{{fromStation}}</td>
-                                <td class="text-left">
-                                    {{toStation}}
-                                    {{!-- <h3>
-                                        <a target="_blank"
-                                            href="https://www.youtube.com/channel/UC_UMEcP_kF0z4E6KbxCpV1w">
-                                            Youtube channel
-                                        </a>
-                                    </h3>
-                                    <a target="_blank" href="https://www.youtube.com/channel/UC_UMEcP_kF0z4E6KbxCpV1w">
-                                        Useful videos
-                                    </a>
-                                    to improve your Javascript skills. Subscribe and stay tuned :)
-                                    {{price}} --}}
-                                </td>
+                                <td class="no">{{toStation}} </td>
                                 <td class="unit">{{amount}}</td>
                                 <td class="qty">{{seats}}</td>
-                                <td class="total">{{total}}</td>
+                                <td class="total">{{total}} đ</td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr>
                                 <td colspan="2"></td>
-                                <td colspan="2">GRAND TOTAL</td>
-                                <td>$6,500.00</td>
+                                <td colspan="2">Tổng thanh toán</td>
+                                <td>{{total}} đ</td>
                             </tr>
                         </tfoot>
                     </table>
                     <div class="notices">
-                        <div>NOTICE:</div>
-                        <div class="notice">Please pay in cash before boarding</div>
+                        <div>Chú ý:</div>
+                        <div class="notice">Vui lòng thanh toán tại nơi nhận vé trước khi khởi hành</div>
                     </div>
                 </main>
                 <footer>
-                    Invoice was created on a computer and is valid without the signature and seal.
+                    Hóa đơn điện tử này là hợp lệ và không cần chữ ký điện tử
                 </footer>
             </div>
             <!--DO NOT DELETE THIS div. IT is responsible for showing footer always at the bottom-->
@@ -254,7 +234,7 @@
     <div id="weava-ui-wrapper">
         <div class="weava-drop-area-wrapper">
             <div class="weava-drop-area"></div>
-            <div class="weava-drop-area-text">Drop here!</div>
+            {{!-- <div class="weava-drop-area-text">Drop here!</div> --}}
         </div>
     </div>
 </body>
