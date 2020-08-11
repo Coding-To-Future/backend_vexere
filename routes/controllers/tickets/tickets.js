@@ -98,21 +98,25 @@ module.exports.getTicketById = async (req, res, next) => {
   }
 };
 
-/**
- * chưa xử lý được seat trong trip thành false sau khi xóa
- */
-
 module.exports.deleteTicketById = async (req, res, next) => {
   try {
     const ticket = await Ticket.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.user._id,
+      _id: req.params.id
     });
-    if (!ticket) res.status(404).json({ message: "Can not delete. Ticket not found" });
-    ticket.seats.map((seat) => (seat.isBooked = false));
-    res.status(200).send(ticket);
+    if (!ticket) return res.status(404).json({ message: "Can not delete. Ticket not found" });
+    const trip = await Trip.findById(ticket.tripId)
+    if(!trip) return res.status(406).json({message: "Trip not found"})
+    trip.seats.map((seat) => {
+      ticket.seats.map((ticket) => {
+        if(ticket.code === seat.code){
+          seat.isBooked = false
+        }
+      })
+    })
+    await trip.save()
+    return res.status(200).send({message: "Delete ticket successfully", ticket});
   } catch (e) {
-    res.status(500).send();
+    res.status(500).send(e);
   }
 };
 
@@ -121,7 +125,7 @@ module.exports.deleteTickets = async (req, res, next) => {
     await Ticket.findOneAndDelete({ userId: req.user._id });
     res.status(200).send({ message: "Delete all ticket successfully!" });
   } catch (e) {
-    res.status(500).send();
+    res.status(500).send(e);
   }
 };
 
