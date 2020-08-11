@@ -52,10 +52,6 @@ module.exports.createTicket = (req, res, next) => {
     .catch((err) => res.status(500).json(err));
 };
 
-/**
- * @todo: get ticket theo user
- */
-
 module.exports.getTicket = async (req, res, next) => {
   try {
     await req.user
@@ -101,20 +97,20 @@ module.exports.getTicketById = async (req, res, next) => {
 module.exports.deleteTicketById = async (req, res, next) => {
   try {
     const ticket = await Ticket.findOneAndDelete({
-      _id: req.params.id
+      _id: req.params.id,
     });
     if (!ticket) return res.status(404).json({ message: "Can not delete. Ticket not found" });
-    const trip = await Trip.findById(ticket.tripId)
-    if(!trip) return res.status(406).json({message: "Trip not found"})
+    const trip = await Trip.findById(ticket.tripId);
+    if (!trip) return res.status(406).json({ message: "Trip not found" });
     trip.seats.map((seat) => {
       ticket.seats.map((ticket) => {
-        if(ticket.code === seat.code){
-          seat.isBooked = false
+        if (ticket.code === seat.code) {
+          seat.isBooked = false;
         }
-      })
-    })
-    await trip.save()
-    return res.status(200).send({message: "Delete ticket successfully", ticket});
+      });
+    });
+    await trip.save();
+    return res.status(200).send({ message: "Delete ticket successfully", ticket });
   } catch (e) {
     res.status(500).send(e);
   }
